@@ -75,7 +75,7 @@ class L1Ana(object):
             logging.addLevelName( logging.DEBUG,   L1Ana.debug_pre + logging.getLevelName(logging.DEBUG)   + L1Ana.reset)
 
             logging.basicConfig(level=level,format='%(asctime)s (%(name)s) [%(levelname)s]: %(message)s', datefmt='%H:%M:%S')
-            L1Ana.init = True
+            L1Ana.loginit = True
 
 class L1Data(object):
     """
