@@ -4,7 +4,10 @@ from sys import exit
 import logging
 
 class L1Ana(object):
-    """Static class that manages all the pyROOT / initialization part"""
+    """
+    Static class that manages all the pyROOT / pyFWLite and initialization part
+    It also manages logging for those who like colourful prompts
+    """
     error_pre = '\x1b[31;01m'
     info_pre = '\x1b[32;01m'
     warning_pre = '\x1b[33;01m'
@@ -17,16 +20,21 @@ class L1Ana(object):
 
     @staticmethod
     def init_l1_analysis():
+        """
+        Initialize all the tools that are already present for analysing L1Ntuples
+        Through ROOT we can just use whatever is already implemented
+        """
         if not L1Ana.loginit:
             L1Ana.init_logging()
 
+        # Import FWLite
         L1Ana.log.info("FWCoreFWLite library being loaded.")
         root.gSystem.Load("libFWCoreFWLite")
         root.gROOT.ProcessLine('AutoLibraryLoader::enable();')
         root.gSystem.Load("libCintex")
         root.gROOT.ProcessLine('ROOT::Cintex::Cintex::Enable();')
 
-        # append the macro classes
+        # append the paths to the macro classes
         curr_path = root.gEnv.GetValue("Unix.*.Root.MacroPath", "")
         macro_path = ":$CMSSW_BASE/src/L1TriggerDPG/L1Ntuples/macros"
         root.gEnv.SetValue("Unix.*.Root.MacroPath", curr_path+macro_path)
@@ -35,7 +43,7 @@ class L1Ana(object):
         l1rates_path += ":$CMSSW_BASE/src/L1TriggerDPG/L1Ntuples/macros/L1Rates/toolbox"
         root.gROOT.SetMacroPath(work_path+macro_path+l1rates_path)
 
-        # append the include directories to get access to DataFormats:
+        # append the include directories to get access to L1Analysis-DataFormats:
         L1Ana.log.info("Adding L1Ntuple include directories")
         root.gSystem.AddIncludePath(" -I$CMSSW_BASE/src/L1TriggerDPG/L1Ntuples/interface")
         root.gSystem.AddIncludePath(" -I$CMSSW_BASE/src/L1TriggerDPG/L1Ntuples/macros")
@@ -51,6 +59,9 @@ class L1Ana(object):
     
     @staticmethod
     def init_logging(name = "L1Ana", level = None):
+        """
+        Initialize a logger with different colors for importance-levels
+        """
         if not L1Ana.loginit or level != None:
             L1Ana.log = logging.getLogger(name)
             if level != None:
@@ -94,7 +105,7 @@ class L1Data(object):
 
 class L1Ntuple(object):
     """docstring for L1Ntuple"""
-    def __init__(self):
+    def __init__(self, nevents = -1):
         super(L1Ntuple, self).__init__()
         self.data = L1Data()
         self.do_reco = False
@@ -112,6 +123,7 @@ class L1Ntuple(object):
 
         self.file_list = []
         self.nentries = -1
+        self.nevents = nevents
         self.current = 0
         self.curr_file = None
         self.init = False
@@ -168,7 +180,7 @@ class L1Ntuple(object):
                     self.file_list.append(fname)
                     cntr += 1
         except EnvironmentError:
-            L1Ana.log.error("While reading file (probably it does not exist): {fname}".format(fname=fname_list))
+            L1Ana.log.fatal("While reading file (probably it does not exist): {fname}".format(fname=fname_list))
             exit(0)
 
         L1Ana.log.info("Found list of {n} files:".format(n = cntr))
@@ -177,19 +189,19 @@ class L1Ntuple(object):
 
     def check_first_file(self):
         if not self.file_list:
-            L1Ana.log.error("No root-files specified")
+            L1Ana.log.fatal("No root-files specified")
             exit(0)
 
         self.curr_file = root.TFile.Open(self.file_list[0])
 
         if not self.curr_file:
-            L1Ana.log.error("Could not open file: {fname}".format(fname=self.file_list[0]))
+            L1Ana.log.fatal("Could not open file: {fname}".format(fname=self.file_list[0]))
             exit(0)
         if self.curr_file.IsOpen() == 0:
-            L1Ana.log.error("Could not open file: {fname}".format(fname=self.file_list[0]))
+            L1Ana.log.fatal("Could not open file: {fname}".format(fname=self.file_list[0]))
             exit(0)
 
-        my_chain     = self.curr_file.Get("l1NtupleProducer/L1Tree")
+        my_chain = self.curr_file.Get("l1NtupleProducer/L1Tree")
         muon  = self.curr_file.Get("l1MuonRecoTreeProducer/MuonRecoTree")
         jets  = self.curr_file.Get("l1RecoTreeProducer/RecoTree")
         extra = self.curr_file.Get("l1ExtraTreeProducer/L1ExtraTree")
@@ -199,7 +211,7 @@ class L1Ntuple(object):
         if my_chain:
             L1Ana.log.info("Found L1Tree...")
         else:
-            L1Ana.log.error("Could not find the main L1Tree.")
+            L1Ana.log.fatal("Could not find the main L1Tree.")
             exit(0)
 
         if muon:
@@ -239,11 +251,14 @@ class L1Ntuple(object):
 
     def init_branches(self):
         if not self.tree_main:
-            L1Ana.log.error("There is no main L1Tree -- aborting initialization of branches")
+            L1Ana.log.fatal("There is no main L1Tree -- aborting initialization of branches")
             exit(0)
 
         self.nentries = self.tree_main.GetEntries()
-        L1Ana.log.info("Approximate number of entries: {n}".format(n=self.nentries))
+        if self.nevents < 0 or self.nevents > self.nentries:
+            self.nevents = self.nentries
+
+        L1Ana.log.info("Approximate number of entries: {n}, running over: {n2}".format(n=self.nentries, n2=self.nevents))
 
         self.data.event =   root.L1Analysis.L1AnalysisEventDataFormat()
         self.data.simulation = root.L1Analysis.L1AnalysisSimulationDataFormat()
@@ -266,12 +281,12 @@ class L1Ntuple(object):
         if self.tree_main.GetBranch("Simulation"):
             self.tree_main.SetBranchAddress("Simulation", root.AddressOf(self.data.simulation))
         else:
-            L1Ana.log.info("Simulation branch not present...")
+            L1Ana.log.warning("Simulation branch not present...")
 
         if self.tree_main.GetBranch("Generator"):
             self.tree_main.SetBranchAddress("Generator", root.AddressOf(self.data.gen))
         else:
-            L1Ana.log.info("Generator branch not present...")
+            L1Ana.log.warning("Generator branch not present...")
 
         if self.do_reco:
             L1Ana.log.info("Setting branch addresses for RecoTree.")
@@ -299,7 +314,7 @@ class L1Ntuple(object):
             if self.tree_muon.GetBranch("RpcHit"):
                 self.tree_muon.SetBranchAddress("RpcHit", root.AddressOf(self.data.recoRpcHit))
             else:
-                L1Ana.log.info("RpcHit branch not present...")
+                L1Ana.log.warning("RpcHit branch not present...")
 
 
         if self.do_l1menu:
@@ -319,13 +334,13 @@ class L1Ntuple(object):
         if not self.init:
             L1Ana.log.error("No estimate for elements, yet!")
             return -1
-        return self.nentries
+        return self.nevents
 
     def __getitem__(self, index):
         if not self.init:
             L1Ana.log.error("L1Ntuple is not yet initialized! Aborting iteration.")
             raise IndexError("L1Ntuple is not yet initialized!")
-        if not index < self.nentries:
+        if not index < self.nevents:
             raise IndexError("Reached the end")
 
         self.tree_main.GetEntry(index)
