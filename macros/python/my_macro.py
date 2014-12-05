@@ -2,10 +2,13 @@
 from L1Analysis import L1Ana, L1Ntuple
 from ToolBox import parse_options
 
-def analyse():
+def analyse(evt):
     # USER HOOK
     # do what you want to do with the ntuples here
-    pass
+    # example:
+    print evt.gmt.N
+    print evt.recoMuon.nMuons
+    
 
 def main():
     L1Ana.init_l1_analysis()
