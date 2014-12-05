@@ -78,7 +78,11 @@ class L1Ana(object):
             L1Ana.init = True
 
 class L1Data(object):
-    """docstring for L1Data"""
+    """
+    This is the container that is returned by the iterator:
+    The user will basically work on this container only and have access
+    to all L1Ntuple-DataFormats through this.
+    """
     def __init__(self):
         super(L1Data, self).__init__()
         self.event = None
@@ -104,7 +108,9 @@ class L1Data(object):
 
 
 class L1Ntuple(object):
-    """docstring for L1Ntuple"""
+    """
+    The interface to the user, it is based on the L1NTuple c++ class
+    """
     def __init__(self, nevents = -1):
         super(L1Ntuple, self).__init__()
         self.data = L1Data()
@@ -129,6 +135,11 @@ class L1Ntuple(object):
         self.init = False
 
     def open_with_file_list(self, fname_list):
+        """
+        Initilize with a text file containing all root-files with
+        L1Ntuples (one per line)
+        TAKES: The file name pointing to the txt-file 
+        """
         self.open_file_list(fname_list)
         self.check_first_file()
         self.open_no_init()
@@ -138,6 +149,10 @@ class L1Ntuple(object):
         self.init = True
 
     def open_with_file(self, fname):
+        """
+        Initialize with only one root-file containing a L1Ntuple
+        TAKES: The file name pointing to the root-file
+        """
         self.file_list = [fname]
         self.check_first_file()
         self.open_no_init()
@@ -146,6 +161,10 @@ class L1Ntuple(object):
         self.init = True
 
     def open_no_init(self):
+        """
+        Initializes the TChains and adds present Trees as friends to the main tree
+        this is needed so the tree's GetEntry stays in synch.
+        """
         self.tree_main = root.TChain("l1NtupleProducer/L1Tree")
         self.tree_muon = root.TChain("l1MuonRecoTreeProducer/MuonRecoTree")
         self.tree_reco =  root.TChain("l1RecoTreeProducer/RecoTree")
@@ -169,6 +188,10 @@ class L1Ntuple(object):
 
 
     def open_file_list(self, fname_list):
+        """
+        Open the txt-file and add all file-names to the list of files
+        TAKES: file-name pointing to txt-file with one L1Ntuple-file per line
+        """
         self.file_list = []
         L1Ana.log.info("Reading txt file with root-file list.")
         cntr = 0
@@ -188,6 +211,10 @@ class L1Ntuple(object):
             L1Ana.log.info("-- {fname}".format(fname=name))
 
     def check_first_file(self):
+        """
+        Checks which branches and trees are present in the first root-file.
+        Sets flags which ones to add accordingly.
+        """
         if not self.file_list:
             L1Ana.log.fatal("No root-files specified")
             exit(0)
@@ -250,6 +277,10 @@ class L1Ntuple(object):
 
 
     def init_branches(self):
+        """
+        Connect the branches of the Trees with the corresponding members
+        in the L1Data container.
+        """
         if not self.tree_main:
             L1Ana.log.fatal("There is no main L1Tree -- aborting initialization of branches")
             exit(0)
@@ -331,12 +362,20 @@ class L1Ntuple(object):
             self.tree_emu_extra.SetBranchAddress("L1Extra", root.AddressOf(self.data.l1emuextra))
 
     def __len__(self):
+        """
+        RETURNS: number of entries
+        """
         if not self.init:
             L1Ana.log.error("No estimate for elements, yet!")
             return -1
-        return self.nevents
+        return self.nentries
 
     def __getitem__(self, index):
+        """
+        This is the iterator, it will get the next entry and return the updated L1Data container
+        TAKES: index of next event
+        RETURNS: L1Data object with connected with L1Ntuple content
+        """
         if not self.init:
             L1Ana.log.error("L1Ntuple is not yet initialized! Aborting iteration.")
             raise IndexError("L1Ntuple is not yet initialized!")
