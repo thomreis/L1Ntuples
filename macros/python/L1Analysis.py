@@ -17,6 +17,7 @@ class L1Ana(object):
     log = None
 
     loginit = False
+    l1init = False
 
     @staticmethod
     def init_l1_analysis():
@@ -56,6 +57,7 @@ class L1Ana(object):
         root.gROOT.ProcessLine(".include $CMSSW_BASE/src/L1TriggerDPG/L1Ntuples/macros/L1Rates/toolbox")
 
         L1Ana.log.info("--- Initialization done ---")
+        L1Ana.l1init = True
     
     @staticmethod
     def init_logging(name = "L1Ana", level = None):
@@ -140,6 +142,7 @@ class L1Ntuple(object):
         L1Ntuples (one per line)
         TAKES: The file name pointing to the txt-file 
         """
+        if not L1Ana.l1init: L1Ana.init_l1_analysis()
         self.open_file_list(fname_list)
         self.check_first_file()
         self.open_no_init()
@@ -153,6 +156,7 @@ class L1Ntuple(object):
         Initialize with only one root-file containing a L1Ntuple
         TAKES: The file name pointing to the root-file
         """
+        if not L1Ana.l1init: L1Ana.init_l1_analysis()
         self.file_list = [fname]
         self.check_first_file()
         self.open_no_init()
