@@ -1,8 +1,8 @@
 from sys import exit
 from optparse import OptionParser
-from L1Analysis import L1Ana
+import logging
 
-def parse_options():
+def parse_options_and_init_log(loglevel=logging.INFO):
     """
     Adds often used options to the OptionParser...
     """
@@ -13,8 +13,12 @@ def parse_options():
 
     opts, args = parser.parse_args()
     if opts.fname == "" and opts.flist == "":
+        from L1Analysis import L1Ana
+        L1Ana.init_logging("L1Analysis", loglevel)
         L1Ana.log.fatal("No inputs specified!")
         parser.print_help()
         exit(0)
-
+    else:
+        from L1Analysis import L1Ana
+        L1Ana.init_logging("L1Analysis", loglevel)
     return opts, args
