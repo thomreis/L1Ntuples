@@ -21,6 +21,7 @@ namespace L1Analysis
       qual.reserve(nMax);
       ch.reserve(nMax);
       bx.reserve(nMax);
+      processor.reserve(nMax);
 
       packedPt.reserve(nMax);
       packedEta.reserve(nMax);
@@ -35,6 +36,7 @@ namespace L1Analysis
       qual.clear();
       ch.clear();
       bx.clear();
+      processor.clear();
 
       packedPt.clear();
       packedEta.clear();
@@ -52,6 +54,7 @@ namespace L1Analysis
     std::vector<float> qual;
     std::vector<float> ch;
     std::vector<int> bx;
+    std::vector<int> processor;
 
     std::vector<int> packedPt;
     std::vector<int> packedEta;
