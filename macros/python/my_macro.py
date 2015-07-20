@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from ToolBox import parse_options_and_init_log
 # have to do this first or ROOT masks the -h messages
-opts, args = parse_options_and_init_log()
+opts = parse_options_and_init_log()
 
 from L1Analysis import L1Ana, L1Ntuple
 import ROOT as root
