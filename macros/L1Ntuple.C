@@ -78,6 +78,7 @@ bool L1Ntuple::CheckFirstFile()
   TTree * mytreeExtra = (TTree*) rf->Get("l1ExtraTreeProducer/L1ExtraTree");
   TTree * mytreeEmuExtra = (TTree*) rf->Get("l1EmulatorExtraTree/L1ExtraTree");
   TTree * mytreeMenu  = (TTree*) rf->Get("l1MenuTreeProducer/L1MenuTree");
+  TTree * muonup = (TTree*) rf->Get("l1MuonUpgradeTreeProducer/L1MuonUpgradeTree")
 
   if (!myChain) {
     std::cout<<"L1Tree not found .... "<<std::endl;
@@ -128,6 +129,15 @@ else
       std::cout << "L1MenuTree is found ..."<<std::endl;
     }
 
+  if (!muonup) {
+    std::cout<<"L1MuonUpgradeTree not found, it will be skipped..."<<std::endl;
+    domuonup=false;
+  }
+  else
+  {
+    std::cout << "L1MuonUpgradeTree is found ..."<<std::endl;
+  }
+
   return true;
 }
 
@@ -140,6 +150,7 @@ bool L1Ntuple::OpenWithoutInit()
   ftreeExtra = new TChain("l1ExtraTreeProducer/L1ExtraTree");
   ftreeEmuExtra = new TChain("l1EmulatorExtraTree/L1ExtraTree");
   ftreeMenu  = new TChain("l1MenuTreeProducer/L1MenuTree");
+  ftreeMuonUp  = new TChain("l1MuonUpgradeTreeProducer/L1MuonUpgradeTree");
 
   for (unsigned int i=0;i<listNtuples.size();i++)
   {
@@ -151,6 +162,7 @@ bool L1Ntuple::OpenWithoutInit()
     if (dol1extra)  ftreeExtra -> Add(listNtuples[i].c_str());
     if (dol1emuextra) ftreeEmuExtra ->Add(listNtuples[i].c_str());
     if (dol1menu)   ftreeMenu  -> Add(listNtuples[i].c_str());
+    if (domuonup) ftreeMuonUp -> Add(listNtuples[i].c_str())
 
   }
 
@@ -159,6 +171,7 @@ bool L1Ntuple::OpenWithoutInit()
   if (dol1extra)  fChain->AddFriend(ftreeExtra);
   if (dol1emuextra) fChain->AddFriend(ftreeEmuExtra);
   if (dol1menu)   fChain->AddFriend(ftreeMenu);
+  if (domuonup)   fChain->AddFriend(ftreeMuonUp);
 
   return true;
 }
@@ -170,6 +183,7 @@ L1Ntuple::~L1Ntuple()
   if (ftreeExtra) delete ftreeExtra;
   if (ftreeEmuExtra) delete ftreeEmuExtra;
   if (ftreeMenu)  delete ftreeMenu;
+  if (ftreeMuonUp)  delete ftreeMuonUp;
   if (fChain)     delete fChain;
   if (rf)         delete rf;
 }
@@ -221,6 +235,7 @@ void L1Ntuple::Init()
    rct_   = new L1Analysis::L1AnalysisRCTDataFormat();
    dttf_  = new L1Analysis::L1AnalysisDTTFDataFormat();
    csctf_ = new L1Analysis::L1AnalysisCSCTFDataFormat();
+   ugmt_ = new L1Analysis::L1AnalysisUGMTDataFormat();
 
    std::cout<<"Setting branch addresses for L1Tree...  "<<std::endl;
 
@@ -291,14 +306,19 @@ void L1Ntuple::Init()
      l1menu_ = new L1Analysis::L1AnalysisL1MenuDataFormat();
      ftreeMenu->SetBranchAddress("L1Menu",&l1menu_);
      }
+  if (domuonup) {
+    std::cout<<"Setting branch addresses for L1MuonUpgrade... "<<std::endl;
+    ugmt_ = new L1Analysis::L1AnalysisUGMTDataFormat();
+    ftreeMenu->SetBranchAddress("L1TMuon",&ugmt_);
+  }
 
 }
 
 void L1Ntuple::Test()
-{ 
+{
 
   if (fChain == 0)  return;
- 
+
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
   unsigned int nevents =0;
@@ -308,14 +328,14 @@ void L1Ntuple::Test()
   {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
-    
+
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    
+
     //fChain->GetEvent(jentry);
-  
+
     nevents++;
     if (nevents<9)  //eight first events
-      { 
+      {
     std::cout << "--------------------- Event "<<jentry<<" ---------------------"<<std::endl;
 
     //event_
@@ -324,7 +344,7 @@ void L1Ntuple::Test()
     //gct_
     std::cout << "L1Tree         : gct_->IsoEmEta.Size() = "<<gct_->IsoEmEta.size()<<std::endl;
     if (gct_->IsoEmEta.size()!=0)
-      std::cout << "L1Tree         : gct->IsoEmEta[0] = "<<gct_->IsoEmEta[0]<<std::endl; 
+      std::cout << "L1Tree         : gct->IsoEmEta[0] = "<<gct_->IsoEmEta[0]<<std::endl;
 
     //gmt_
     std::cout << "L1Tree         : gmt_->Ndt        = "<<gmt_->Ndt<<std::endl;
@@ -339,7 +359,7 @@ void L1Ntuple::Test()
     //rct_
     std::cout << "L1Tree         : rct->RegSize    = "<<rct_->RegSize<<std::endl;
     if (rct_->RegSize!=0)
-      std::cout << "L1Tree         : rct->RegEta[0] = "<<rct_->RegEta[0]<<std::endl; 
+      std::cout << "L1Tree         : rct->RegEta[0] = "<<rct_->RegEta[0]<<std::endl;
 
     //dttf_
     std::cout << "L1Tree         : dttf->trSize     = "<<dttf_->trSize<<std::endl;
@@ -356,7 +376,7 @@ void L1Ntuple::Test()
 
     //recoMet
     if (doreco)     std::cout << "L1RecoTree     : met        = " << recoMet_->met     << std::endl;
-  
+
     //recoJet_
     if (doreco)     std::cout << "L1RecoTree     : nb jets    = " << recoJet_->nJets   << std::endl;
 
@@ -370,7 +390,7 @@ void L1Ntuple::Test()
     if (doreco)     std::cout << "L1RecoTree     : nTrk       = " << recoTrack_->nTrk     << std::endl;
 
     //recoVertex
-    if (doreco)     std::cout << "L1RecoTree     : nVtx       = " << recoVertex_->nVtx     << std::endl;    
+    if (doreco)     std::cout << "L1RecoTree     : nVtx       = " << recoVertex_->nVtx     << std::endl;
 
     //l1extra_
     if (dol1extra)  std::cout << "L1ExtraTree    : et         = " << l1extra_->et[0]      << std::endl;
@@ -387,17 +407,17 @@ void L1Ntuple::Test()
 
     }
   }
-   
+
 }
 
 
 
 
 void L1Ntuple::Test2()
-{ 
+{
 
   if (fChain == 0)  return;
- 
+
   Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
   //unsigned int nevents =0;
@@ -414,7 +434,7 @@ void L1Ntuple::Test2()
   {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
-    
+
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
     dttf_histo->Fill(dttf_->trBx.size());
