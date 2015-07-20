@@ -32,13 +32,14 @@ class Matcher(object):
     def match_dr(eta_coll1, phi_coll1, eta_coll2, phi_coll2, cut=0.5, phi_normalize=True, idcs1=None, idcs2=None):
         """
         Matching based on delta R (dR = sqrt(dEta^2 + dPhi^2)):
-        Returns a list of index pairs (first idx for collection1 second for collection2)
+        Returns a sorted list of index pairs and corr. dR (first in tuple idx for collection1; second for collection2; third is dR)
+        List is sorted by increasing dR
         Parameters eta_coll1/2 & phi_coll1/2 are the eta/phi vectors from the two collections
         Parameter cut specifies the maximum allowed dR
         Parameter phi_normalize specifies whether the phi scales are different (-pi, pi) vs (0, 2pi)
         Parameters idcs1/2 can specify if only a subset of the collections should be considered
         """
-        index_pairs = []
+        index_tuples = []
         if idcs1 is None:
             idcs1 = range(eta_coll1.size())
         if idcs2 is None:
@@ -55,17 +56,18 @@ class Matcher(object):
                     phi1 = Matcher.norm_phi(phi1)
                     phi2 = Matcher.norm_phi(phi2)
                 dphi = Matcher.delta_phi(phi1, phi2)
-                if math.sqrt(deta*deta + dphi*dphi) < cut:
-                    index_pairs.append([i, j])
+                dr = math.sqrt(deta*deta + dphi*dphi)
+                if dr < cut:
+                    index_tuples.append([i, j, dr])
 
-        return index_pairs
+        return sorted(index_tuples, key=lambda idx_dr: idx_dr[2])
 
 
 class MuonSelections(object):
     """Class containing functions for commonly used muon selections"""
 
     @staticmethod
-    def select_ugmt_muons(ugmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, tftype=None):
+    def select_ugmt_muons(ugmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None):
         type_acc = tftype
         if isinstance(tftype, int):
             type_acc.append(tftype)
@@ -79,7 +81,9 @@ class MuonSelections(object):
                 select = False
             if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
                 select = False
-            if ugmt.qual < qual_min:
+            if only_pos_eta and ugmt.eta[i] < 0:
+                select = False
+            if ugmt.qual[i] < qual_min:
                 select = False
             if not (ugmt.tfLink[i].tf in type_acc):
                 select = False
@@ -89,23 +93,30 @@ class MuonSelections(object):
         return indices
 
     @staticmethod
-    def select_gmt_muons(gmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4):
+    def select_gmt_muons(gmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False):
+        # qual_min = 8 is interpreted as 2012 running conditions, i.e.:
+        # take qualities 6, 7 and 5 if BX == 0
         indices = []
+
         for i in range(gmt.N):
             select = True
             if gmt.Pt[i] < pt_min:
                 select = False
             if math.fabs(gmt.Eta[i]) < abs_eta_min or math.fabs(gmt.Eta[i]) > abs_eta_max:
                 select = False
-            if gmt.Qual < qual_min:
+            if gmt.Qual[i] < qual_min and qual_min < 8:
                 select = False
-
+            elif qual_min == 8:
+                if (gmt.Qual[i] < 5) or (gmt.Qual[i] == 5 and gmt.Bx[i] != 0):
+                    select = False
+            if only_pos_eta and gmt.Eta[i] < 0:
+                select = False
             if select:
                 indices.append(i)
         return indices
 
     @staticmethod
-    def select_reco_muons(reco, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, muon_id=1):
+    def select_reco_muons(reco, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, muon_id=1, only_pos_eta=False):
         indices = []
         for i in range(reco.n):
             select = True
@@ -113,7 +124,9 @@ class MuonSelections(object):
                 select = False
             if math.fabs(reco.eta[i]) < abs_eta_min or math.fabs(reco.eta[i]) > abs_eta_max:
                 select = False
-            if reco.qual < muon_id:  # FIXME currently not correct!
+            if only_pos_eta and reco.eta[i] < 0:
+                select = False
+            if reco.qual[i] < muon_id:  # FIXME currently not correct!
                 select = False
 
             if select:
@@ -121,7 +134,7 @@ class MuonSelections(object):
         return indices
 
     @staticmethod
-    def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4):
+    def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False):
         indices = []
         for i in range(gen.px.size()):
             select = True
@@ -129,6 +142,8 @@ class MuonSelections(object):
             if pt < pt_min:
                 select = False
             if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
+                select = False
+            if only_pos_eta and gen.eta[i] < 0:
                 select = False
             if abs(gen.id[i]) != 13:  # Select muons only!
                 select = False
