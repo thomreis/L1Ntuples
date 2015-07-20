@@ -317,7 +317,7 @@ class L1Ntuple(object):
             self.do_l1emuextra = True
         else:
             L1Ana.log.warning(
-                "Could not find MuonRecoTree... It will be skipped.")
+                "Could not find L1EmulatorExtra... It will be skipped.")
 
         if menu:
             L1Ana.log.info("Found L1MenuTree... Will add access to it.")
