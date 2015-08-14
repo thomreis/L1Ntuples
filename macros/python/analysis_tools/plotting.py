@@ -33,6 +33,9 @@ class HistManager(object):
     def get(self, varname):
         return self.hists[varname]
 
+    def get_varnames(self):
+        return self.varnames
+
     def get_stack(self, varnames):
         keyname = "_".join(varnames)
         if keyname in self._stackcache.keys():

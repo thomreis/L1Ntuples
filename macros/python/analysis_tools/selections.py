@@ -78,15 +78,15 @@ class MuonSelections(object):
         for i in range(ugmt.n):
             select = True
             if ugmt.pt[i] < pt_min:
-                select = False
+                continue
             if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
-                select = False
+                continue
             if only_pos_eta and ugmt.eta[i] < 0:
-                select = False
+                continue
             if ugmt.qual[i] < qual_min:
-                select = False
+                continue
             if not (ugmt.tfLink[i].tf in type_acc):
-                select = False
+                continue
 
             if select:
                 indices.append(i)
@@ -101,16 +101,16 @@ class MuonSelections(object):
         for i in range(gmt.N):
             select = True
             if gmt.Pt[i] < pt_min:
-                select = False
+                continue
             if math.fabs(gmt.Eta[i]) < abs_eta_min or math.fabs(gmt.Eta[i]) > abs_eta_max:
-                select = False
+                continue
             if gmt.Qual[i] < qual_min and qual_min < 8:
-                select = False
+                continue
             elif qual_min == 8:
                 if (gmt.Qual[i] < 5) or (gmt.Qual[i] == 5 and gmt.Bx[i] != 0):
-                    select = False
+                    continue
             if only_pos_eta and gmt.Eta[i] < 0:
-                select = False
+                continue
             if select:
                 indices.append(i)
         return indices
@@ -121,13 +121,13 @@ class MuonSelections(object):
         for i in range(reco.n):
             select = True
             if reco.pt[i] < pt_min:
-                select = False
+                continue
             if math.fabs(reco.eta[i]) < abs_eta_min or math.fabs(reco.eta[i]) > abs_eta_max:
-                select = False
+                continue
             if only_pos_eta and reco.eta[i] < 0:
-                select = False
+                continue
             if reco.qual[i] < muon_id:  # FIXME currently not correct!
-                select = False
+                continue
 
             if select:
                 indices.append(i)
@@ -138,15 +138,14 @@ class MuonSelections(object):
         indices = []
         for i in range(gen.px.size()):
             select = True
-            pt = math.sqrt(gen.px[i]*gen.px[i] + gen.py[i]*gen.py[i])
-            if pt < pt_min:
-                select = False
-            if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
-                select = False
-            if only_pos_eta and gen.eta[i] < 0:
-                select = False
             if abs(gen.id[i]) != 13:  # Select muons only!
-                select = False
+                continue
+            if gen.pt[i] < pt_min:
+                continue
+            if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
+                continue
+            if only_pos_eta and gen.eta[i] < 0:
+                continue
 
             if select:
                 indices.append(i)
