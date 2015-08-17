@@ -134,19 +134,34 @@ class MuonSelections(object):
         return indices
 
     @staticmethod
-    def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False):
+    def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, preselection=[]):
         indices = []
-        for i in range(gen.px.size()):
-            select = True
-            if abs(gen.id[i]) != 13:  # Select muons only!
-                continue
-            if gen.pt[i] < pt_min:
-                continue
-            if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
-                continue
-            if only_pos_eta and gen.eta[i] < 0:
-                continue
+        if len(preselection) > 0:
+            for i in preselection:
+                select = True
+                if abs(gen.id[i]) != 13:  # Select muons only!
+                    continue
+                if gen.pt[i] < pt_min:
+                    continue
+                if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
+                    continue
+                if only_pos_eta and gen.eta[i] < 0:
+                    continue
 
-            if select:
-                indices.append(i)
+                if select:
+                    indices.append(i)
+        else: 
+            for i in range(gen.px.size()):
+                select = True
+                if abs(gen.id[i]) != 13:  # Select muons only!
+                    continue
+                if gen.pt[i] < pt_min:
+                    continue
+                if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
+                    continue
+                if only_pos_eta and gen.eta[i] < 0:
+                    continue
+
+                if select:
+                    indices.append(i)
         return indices
