@@ -25,7 +25,10 @@ def main():
     if opts.fname:
         ntuple.open_with_file(opts.fname)
 
-    for i, event in enumerate(ntuple):
+    start_evt = opts.start_event
+    end_evt = opts.start_event+ntuple.nevents
+    for i in range(start_evt, end_evt):
+        event = ntuple[i]
         if (i+1) % 1000 == 0:
             L1Ana.log.info("Processing event: {n}".format(n=i))
         analyse(event)
