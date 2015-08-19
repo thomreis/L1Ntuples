@@ -45,5 +45,6 @@ namespace{
     std::map<L1Analysis::tftype,L1Analysis::L1AnalysisRegMuonDataFormat> pGMTlink;
     std::vector<L1Analysis::TFLink> tfLinkVec;
     L1Analysis::TFLink tfLink;
+    L1Analysis::L1AnalysisMuTwrDataFormat pGMTCaloTwrs;
    }
 }

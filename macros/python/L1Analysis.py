@@ -112,6 +112,8 @@ class L1Data(object):
         self.gct = None
         self.gmt = None
         self.ugmt = None
+        self.towers2x2 = None
+        self.towers = None
         self.gt = None
         self.rct = None
         self.dttf = None
@@ -460,8 +462,14 @@ class L1Ntuple(object):
         if self.do_muonup:
             L1Ana.log.info("Setting branch addresses for MuonUpgradeTree")
             self.data.ugmt = root.L1Analysis.L1AnalysisUGMTDataFormat(8)
+            self.data.towers2x2 = root.L1Analysis.L1AnalysisMuTwrDataFormat()
+            self.data.towers = root.L1Analysis.L1AnalysisMuTwrDataFormat()
             self.tree_muonupgrade.SetBranchAddress(
                 "L1TMuon", root.AddressOf(self.data.ugmt))
+            self.tree_muonupgrade.SetBranchAddress(
+                "L1TMuonCalo2x2", root.AddressOf(self.data.towers2x2))
+            self.tree_muonupgrade.SetBranchAddress(
+                "L1TMuonCalo", root.AddressOf(self.data.towers))
 
     def __len__(self):
         """
@@ -482,7 +490,7 @@ class L1Ntuple(object):
             L1Ana.log.error(
                 "L1Ntuple is not yet initialized! Aborting iteration.")
             raise IndexError("L1Ntuple is not yet initialized!")
-        if not index < self.nevents:
+        if not index < self.nentries:
             raise IndexError("Reached the end")
 
         self.tree_main.GetEntry(index)

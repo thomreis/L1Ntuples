@@ -61,6 +61,44 @@ namespace L1Analysis
     std::vector<int> packedPhi;
   };
 
+  class L1AnalysisMuTwrDataFormat {
+  public:
+    L1AnalysisMuTwrDataFormat() {};
+    // explicit L1AnalysisMuTwrDataFormat(size_t nMax) {
+    //   pt.reserve(nMax);
+    //   eta.reserve(nMax);
+    //   phi.reserve(nMax);
+
+    //   packedPt.reserve(nMax);
+    //   packedEta.reserve(nMax);
+    //   packedPhi.reserve(nMax);
+    // };
+    virtual ~L1AnalysisMuTwrDataFormat() {};
+
+    void Reset() {
+      // pt.clear();
+      // eta.clear();
+      // phi.clear();
+
+      packedPt.clear();
+      packedEta.clear();
+      packedPhi.clear();
+
+      n = 0;
+    }
+
+    // member data (public to be compatible with legacy)
+    int n;
+
+    // std::vector<float> pt;
+    // std::vector<float> eta;
+    // std::vector<float> phi;
+
+    std::vector<int> packedPt;
+    std::vector<int> packedEta;
+    std::vector<int> packedPhi;
+  };
+
   struct TFLink {
     TFLink(tftype tft, int index) : tf(tft), idx(index) {};
     TFLink() : tf(tftype::bmtf), idx(-1) {};
@@ -76,6 +114,7 @@ namespace L1Analysis
       relIso.reserve(nMax);
       absIso.reserve(nMax);
       rank.reserve(nMax);
+      isoEnergy.reserve(nMax);
       packedIso.reserve(nMax);
       tfLink.reserve(nMax);
       pt.reserve(nMax);
@@ -117,6 +156,7 @@ namespace L1Analysis
       relIso.clear();
       absIso.clear();
       rank.clear();
+      isoEnergy.clear();
       packedIso.clear();
       tfLink.clear();
 
@@ -147,6 +187,7 @@ namespace L1Analysis
     std::vector<int> relIso;
     std::vector<int> absIso;
     std::vector<int> rank;
+    std::vector<int> isoEnergy;
 
     std::vector<int> packedIso;
 
