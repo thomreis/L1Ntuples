@@ -27,7 +27,11 @@ L1AnalysisUGMT::fillTrackFinder(const L1TRegionalMuonColl& coll, tftype mytype, 
 }
 
 void
-L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc, const L1TRegionalMuonColl& bmtfColl, const L1TRegionalMuonColl& omtfColl, const L1TRegionalMuonColl& emtfColl, bool onlyBX0) {
+L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
+                    const L1TRegionalMuonColl& bmtfColl,
+                    const L1TRegionalMuonColl& omtfColl,
+                    const L1TRegionalMuonColl& emtfColl,
+                    bool onlyBX0) {
 	int ugmtCtr = 0;
 	int bmtfCtr = 0;
 	int omtfCtr = 0;
@@ -71,8 +75,9 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc, const L1TRegionalMuonCo
       ugmt_.packedPhi.push_back(mu->hwPhi());
 
       // second bit = rel iso, first bit = abs iso
-      ugmt_.relIso.push_back(mu->hwIso() & 2);
+      ugmt_.relIso.push_back((mu->hwIso() & 2) << 1);
       ugmt_.absIso.push_back(mu->hwIso() & 1);
+      ugmt_.isoEnergy.push_back(mu->hwIsoSum());
 
       ugmt_.rank.push_back(mu->hwRank());
       ugmt_.packedIso.push_back(mu->hwIso());
@@ -89,6 +94,7 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc, const L1TRegionalMuonCo
     lastBXMaxOmtf = omtfCtr;
     lastBXMaxEmtf = emtfCtr;
 	}
+
   ugmt_.n = ugmtCtr;
   ugmt_.nBmtf = bmtfCtr;
   ugmt_.nOmtf = omtfCtr;
