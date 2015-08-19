@@ -1,4 +1,5 @@
 import math
+import ROOT as root
 
 
 class Matcher(object):
@@ -27,6 +28,13 @@ class Matcher(object):
             phi2 = Matcher.norm_phi(phi2)
         dphi = Matcher.delta_phi(phi1, phi2)
         return math.sqrt(deta*deta + dphi*dphi)
+
+    @staticmethod
+    def converted_phi(tf_coll, tftype):
+        conv_phi = []
+        for i in range(tf_coll.phi.size()):
+            conv_phi.append(root.l1t.L1TGMTInternalMuon.calcGlobalPhi(tf_coll.packedPhi[i], tftype, tf_coll.processor[i]) * 0.010908)
+        return conv_phi
 
     @staticmethod
     def match_dr(eta_coll1, phi_coll1, eta_coll2, phi_coll2, cut=0.5, phi_normalize=True, idcs1=None, idcs2=None):
@@ -76,20 +84,33 @@ class MuonSelections(object):
 
         indices = []
         for i in range(ugmt.n):
-            select = True
             if ugmt.pt[i] < pt_min:
-                select = False
-            if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
-                select = False
+                continue
             if only_pos_eta and ugmt.eta[i] < 0:
-                select = False
+                continue
+            if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
+                continue
             if ugmt.qual[i] < qual_min:
-                select = False
+                continue
             if not (ugmt.tfLink[i].tf in type_acc):
-                select = False
+                continue
 
-            if select:
-                indices.append(i)
+            indices.append(i)
+        return indices
+
+    @staticmethod
+    def select_tf_muons(tf, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None):
+        indices = []
+        for i in range(tf.eta.size()):
+            if tf.pt[i] < pt_min:
+                continue
+            if only_pos_eta and tf.eta[i] < 0:
+                continue
+            if math.fabs(tf.eta[i]) < abs_eta_min or math.fabs(tf.eta[i]) > abs_eta_max:
+                continue
+            if tf.qual[i] < qual_min:
+                continue
+            indices.append(i)
         return indices
 
     @staticmethod
@@ -99,55 +120,50 @@ class MuonSelections(object):
         indices = []
 
         for i in range(gmt.N):
-            select = True
             if gmt.Pt[i] < pt_min:
-                select = False
-            if math.fabs(gmt.Eta[i]) < abs_eta_min or math.fabs(gmt.Eta[i]) > abs_eta_max:
-                select = False
-            if gmt.Qual[i] < qual_min and qual_min < 8:
-                select = False
-            elif qual_min == 8:
-                if (gmt.Qual[i] < 5) or (gmt.Qual[i] == 5 and gmt.Bx[i] != 0):
-                    select = False
+                continue
             if only_pos_eta and gmt.Eta[i] < 0:
-                select = False
-            if select:
-                indices.append(i)
+                continue
+            if math.fabs(gmt.Eta[i]) < abs_eta_min or math.fabs(gmt.Eta[i]) > abs_eta_max:
+                continue
+            if gmt.Qual[i] < qual_min and qual_min < 8:
+                continue
+            elif qual_min == 8:
+                if (gmt.Qual[i] < 5) or (gmt.Qual[i] == 5 and gmt.CandBx[i] != 0):
+                    continue
+            indices.append(i)
         return indices
 
     @staticmethod
     def select_reco_muons(reco, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, muon_id=1, only_pos_eta=False):
         indices = []
         for i in range(reco.n):
-            select = True
             if reco.pt[i] < pt_min:
-                select = False
+                continue
             if math.fabs(reco.eta[i]) < abs_eta_min or math.fabs(reco.eta[i]) > abs_eta_max:
-                select = False
+                continue
             if only_pos_eta and reco.eta[i] < 0:
-                select = False
+                continue
             if reco.qual[i] < muon_id:  # FIXME currently not correct!
-                select = False
+                continue
 
-            if select:
-                indices.append(i)
+            indices.append(i)
         return indices
 
     @staticmethod
-    def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False):
+    def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, idcs=None):
+        if idcs is None:
+            idcs = range(gen.px.size())
         indices = []
-        for i in range(gen.px.size()):
-            select = True
+        for i in idcs:
+            if abs(gen.id[i]) != 13:  # Select muons only!
+                continue
             pt = math.sqrt(gen.px[i]*gen.px[i] + gen.py[i]*gen.py[i])
             if pt < pt_min:
-                select = False
+                continue
             if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
-                select = False
+                continue
             if only_pos_eta and gen.eta[i] < 0:
-                select = False
-            if abs(gen.id[i]) != 13:  # Select muons only!
-                select = False
-
-            if select:
-                indices.append(i)
+                continue
+            indices.append(i)
         return indices
