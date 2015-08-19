@@ -67,7 +67,7 @@ class MuonSelections(object):
     """Class containing functions for commonly used muon selections"""
 
     @staticmethod
-    def select_ugmt_muons(ugmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None):
+    def select_ugmt_muons(ugmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None, preselection=[]):
         type_acc = tftype
         if isinstance(tftype, int):
             type_acc.append(tftype)
@@ -75,21 +75,38 @@ class MuonSelections(object):
             type_acc = [0, 1, 2]
 
         indices = []
-        for i in range(ugmt.n):
-            select = True
-            if ugmt.pt[i] < pt_min:
-                continue
-            if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
-                continue
-            if only_pos_eta and ugmt.eta[i] < 0:
-                continue
-            if ugmt.qual[i] < qual_min:
-                continue
-            if not (ugmt.tfLink[i].tf in type_acc):
-                continue
+        if len(preselection) > 0:
+            for i in preselection:
+                select = True
+                if ugmt.pt[i] < pt_min:
+                    continue
+                if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
+                    continue
+                if only_pos_eta and ugmt.eta[i] < 0:
+                    continue
+                if ugmt.qual[i] < qual_min:
+                    continue
+                if not (ugmt.tfLink[i].tf in type_acc):
+                    continue
 
-            if select:
-                indices.append(i)
+                if select:
+                    indices.append(i)
+        else:
+            for i in range(ugmt.n):
+                select = True
+                if ugmt.pt[i] < pt_min:
+                    continue
+                if math.fabs(ugmt.eta[i]) < abs_eta_min or math.fabs(ugmt.eta[i]) > abs_eta_max:
+                    continue
+                if only_pos_eta and ugmt.eta[i] < 0:
+                    continue
+                if ugmt.qual[i] < qual_min:
+                    continue
+                if not (ugmt.tfLink[i].tf in type_acc):
+                    continue
+
+                if select:
+                    indices.append(i)
         return indices
 
     @staticmethod

@@ -23,7 +23,7 @@ class HistManager(object):
             # variable binning when nBins == -1
             if self.binnings[vname][0] < 0:
                 if have_unit:
-                    self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-3, array('d', self.binnings[vname][1:-2]))
+                    self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-4, array('d', self.binnings[vname][1:-2]))
                 else:
                     self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-3, array('d', self.binnings[vname][1:-1]))
             # fixed binning
@@ -32,6 +32,8 @@ class HistManager(object):
             self.hists[vname].Sumw2()
             if not have_unit:
                 xtitle = self.binnings[vname][-1]
+            elif self.binnings[vname][-1] is None:
+                xtitle = self.binnings[vname][-2]
             else:
                 xtitle = "{title} ({unit})".format(title=self.binnings[vname][-2], unit=self.binnings[vname][-1])
 
