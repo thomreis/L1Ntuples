@@ -101,9 +101,11 @@ class MuonSelections(object):
         return indices
 
     @staticmethod
-    def select_tf_muons(tf, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None):
+    def select_tf_muons(tf, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None, idcs=None):
         indices = []
-        for i in range(tf.eta.size()):
+        if idcs is None:
+            idcs = range(tf.eta.size())
+        for i in idcs:
             if tf.pt[i] < pt_min:
                 continue
             if only_pos_eta and tf.eta[i] < 0:
@@ -116,12 +118,14 @@ class MuonSelections(object):
         return indices
 
     @staticmethod
-    def select_gmt_muons(gmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False):
+    def select_gmt_muons(gmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, idcs=None):
         # qual_min = 8 is interpreted as 2012 running conditions, i.e.:
         # take qualities 6, 7 and 5 if BX == 0
         indices = []
 
-        for i in range(gmt.N):
+        if idcs is None:
+            idcs = range(gmt.N)
+        for i in idcs:
             if gmt.Pt[i] < pt_min:
                 continue
             if only_pos_eta and gmt.Eta[i] < 0:
@@ -155,13 +159,12 @@ class MuonSelections(object):
     @staticmethod
     def select_gen_muons(gen, pt_min=0.5, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, idcs=None):
         if idcs is None:
-            idcs = range(gen.px.size())
+            idcs = range(gen.pt.size())
         indices = []
         for i in idcs:
             if abs(gen.id[i]) != 13:  # Select muons only!
                 continue
-            pt = math.sqrt(gen.px[i]*gen.px[i] + gen.py[i]*gen.py[i])
-            if pt < pt_min:
+            if gen.pt[i] < pt_min:
                 continue
             if math.fabs(gen.eta[i]) < abs_eta_min or math.fabs(gen.eta[i]) > abs_eta_max:
                 continue
