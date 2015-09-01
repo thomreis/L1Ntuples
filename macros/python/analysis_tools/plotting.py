@@ -2,8 +2,8 @@ import ROOT as root
 
 
 class HistManager(object):
-    """Class that manages and holds histograms"""
-    def __init__(self, varnames, binning_dict, prefix=""):
+    """docstring for HistManager"""
+    def __init__(self, varnames, binning_dict, ytitle="# Muons", prefix=""):
         super(HistManager, self).__init__()
         self.varnames = varnames
         self.binnings = binning_dict
@@ -25,10 +25,7 @@ class HistManager(object):
                 xtitle += " ({unit})".format(unit=self.binnings[vname][4])
 
             self.hists[vname].GetXaxis().SetTitle(xtitle)
-            self.hists[vname].GetYaxis().SetTitle("# Muons")
-
-    def fill(self, varname, val):
-        self.hists[varname].Fill(val)
+            self.hists[vname].GetYaxis().SetTitle(ytitle)
 
     def get(self, varname):
         return self.hists[varname]
@@ -45,6 +42,9 @@ class HistManager(object):
             hs.append(h)
         self._stackcache[keyname] = [hs, stack]
         return [hs, stack]
+
+    def get_binning(self, varname):
+        return self.binnings[varname]
 
     def get_threshold_hist(self, varname):
         if varname in self._thresholdcache.keys():
@@ -115,3 +115,31 @@ class HistManager(object):
         eff = root.TEfficiency(h_nom, h_denom)
         self._effcache[name] = eff
         return eff
+
+
+class L1AnalysisHistManager(HistManager):
+    """Class that manages and holds histograms"""
+    def __init__(self, varnames, binning_dict, prefix=""):
+        super(L1AnalysisHistManager, self).__init__(varnames, binning_dict, prefix=prefix)
+
+    def fill(self, varname, val):
+        self.hists[varname].Fill(val)
+
+
+class VarExp(object):
+    def __init__(self, name, varexp, cutexp):
+        super(VarExp, self).__init__()
+        self.name = name
+        self.varexp = varexp
+        self.cutexp = cutexp
+
+
+class FlatHistManager(HistManager):
+    def __init__(self, varnames, binning_dict, varexps, cutexp, prefix=""):
+        super(FlatHistManager, self).__init__(varnames, binning_dict, prefix=prefix)
+        self.varexps = varexps
+        self.cutexp = cutexp
+
+    def project(self, ntuple):
+        for vname in self.varnames:
+            ntuple.Project(self.prefix+vname, self.varexps[vname].varexp, "({cut1})*({cut2})".format(cut1=self.varexps[vname].cutexp, cut2=self.cutexp))
