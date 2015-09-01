@@ -75,7 +75,7 @@ class MuonSelections(object):
     """Class containing functions for commonly used muon selections"""
 
     @staticmethod
-    def select_ugmt_muons(ugmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None, idcs=None):
+    def select_ugmt_muons(ugmt, pt_min=0.5, qual_min=0, abs_eta_min=0, abs_eta_max=4, only_pos_eta=False, tftype=None):
         type_acc = tftype
         if isinstance(tftype, int):
             type_acc.append(tftype)
@@ -83,9 +83,7 @@ class MuonSelections(object):
             type_acc = [0, 1, 2]
 
         indices = []
-        if idcs is None:
-            idcs = range(ugmt.n)
-        for i in idcs:
+        for i in range(ugmt.n):
             if ugmt.pt[i] < pt_min:
                 continue
             if only_pos_eta and ugmt.eta[i] < 0:
@@ -112,6 +110,9 @@ class MuonSelections(object):
                 continue
             if tf.qual[i] < qual_min:
                 continue
+            if tftype == 1:
+                if tf.trAddress[i] == 99840 or tf.trAddress[i] == 34304 or tf.trAddress[i] == 3075 or tf.trAddress[i] == 36928 or tf.trAddress[i] == 12300 or tf.trAddress[i] == 98816 or tf.trAddress[i] == 98944 or tf.trAddress[i] == 33408 or tf.trAddress[i] == 66688 or tf.trAddress[i] == 66176:
+                    continue
             indices.append(i)
         return indices
 
