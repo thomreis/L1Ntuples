@@ -66,7 +66,7 @@ class Matcher(object):
                 dphi = Matcher.delta_phi(phi1, phi2)
                 dr = math.sqrt(deta*deta + dphi*dphi)
                 if dr < cut:
-                    index_tuples.append([i, j, dr])
+                    index_tuples.append([i, j, dr, deta, dphi])
 
         return sorted(index_tuples, key=lambda idx_dr: idx_dr[2])
 
