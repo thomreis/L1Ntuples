@@ -19,6 +19,7 @@ L1AnalysisUGMT::fillTrackFinder(const L1TRegionalMuonColl& coll, tftype mytype, 
       ugmt_.tfInfo[mytype].ch.push_back(mu->hwSign());
       ugmt_.tfInfo[mytype].bx.push_back(bx);
       ugmt_.tfInfo[mytype].processor.push_back(mu->processor());
+      ugmt_.tfInfo[mytype].trAddress.push_back(mu->hwTrackAddress());
 
       ugmt_.tfInfo[mytype].packedPt.push_back(mu->hwPt());
       ugmt_.tfInfo[mytype].packedEta.push_back(mu->hwEta());
