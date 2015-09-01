@@ -1,4 +1,5 @@
 import ROOT as root
+from array import array
 
 
 class HistManager(object):
@@ -18,17 +19,32 @@ class HistManager(object):
         self._thresholdcache = {}
 
         for vname in varnames:
-            self.hists[vname] = root.TH1D(prefix+vname, "", self.binnings[vname][0], self.binnings[vname][1], self.binnings[vname][2])
+            have_unit = type(self.binnings[vname][-2]) is str
+            # variable binning when nBins == -1
+            if self.binnings[vname][0] < 0:
+                if have_unit:
+                    self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-4, array('d', self.binnings[vname][1:-2]))
+                else:
+                    self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-3, array('d', self.binnings[vname][1:-1]))
+            # fixed binning
+            else:
+                self.hists[vname] = root.TH1D(prefix+vname, "", self.binnings[vname][0], self.binnings[vname][1], self.binnings[vname][2])
             self.hists[vname].Sumw2()
-            xtitle = self.binnings[vname][3]
-            if len(self.binnings[vname]) > 4:
-                xtitle += " ({unit})".format(unit=self.binnings[vname][4])
+            if not have_unit:
+                xtitle = self.binnings[vname][-1]
+            elif self.binnings[vname][-1] is None:
+                xtitle = self.binnings[vname][-2]
+            else:
+                xtitle = "{title} ({unit})".format(title=self.binnings[vname][-2], unit=self.binnings[vname][-1])
 
             self.hists[vname].GetXaxis().SetTitle(xtitle)
             self.hists[vname].GetYaxis().SetTitle(ytitle)
 
     def get(self, varname):
         return self.hists[varname]
+
+    def get_varnames(self):
+        return self.varnames
 
     def get_stack(self, varnames):
         keyname = "_".join(varnames)
