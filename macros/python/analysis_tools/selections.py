@@ -101,6 +101,8 @@ class MuonSelections(object):
                 k = ugmt.tfLink[i].idx
                 if tf.trAddress[k] == 99840 or tf.trAddress[k] == 34304 or tf.trAddress[k] == 3075 or tf.trAddress[k] == 36928 or tf.trAddress[k] == 12300 or tf.trAddress[k] == 98816 or tf.trAddress[k] == 98944 or tf.trAddress[k] == 33408 or tf.trAddress[k] == 66688 or tf.trAddress[k] == 66176:
                     continue
+            if ugmt.tfLink[i].tf == 2 and (ugmt.qual[i] < 11 or ugmt.qual[i] == 12):
+                continue
             indices.append(i)
         return indices
 
@@ -121,6 +123,8 @@ class MuonSelections(object):
             if tftype == 1:
                 if tf.trAddress[i] == 99840 or tf.trAddress[i] == 34304 or tf.trAddress[i] == 3075 or tf.trAddress[i] == 36928 or tf.trAddress[i] == 12300 or tf.trAddress[i] == 98816 or tf.trAddress[i] == 98944 or tf.trAddress[i] == 33408 or tf.trAddress[i] == 66688 or tf.trAddress[i] == 66176:
                     continue
+            if tftype == 2 and (tf.qual[i] < 11 or tf.qual[i] == 12):
+                continue
             indices.append(i)
         return indices
 
