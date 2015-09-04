@@ -17,7 +17,8 @@ def parse_options_and_init_log(loglevel=logging.INFO):
     parser.add_argument("-n", "--nevents", dest="nevents", default=-1, type=int, help="Number of events to run, -1 for all [default: %default]")
     parser.add_argument("-w"  ,"--workdir", dest="workdir", default='job', type=str, help="Work directory to create scripts and store output in [default: %default]")
     parser.add_argument("-o", "--outname", dest="outname", default="output", type=str, help="File name for output files. .root added automatically [default: %default]")
-    parser.add_argument("-s", "--scriptname", dest="scriptname", default="ntuple.py", type=str, help="Script to create ntuple [default: %default]")
+    parser.add_argument("-s", "--scriptname", dest="scriptname", default="ntuple.py", type=str, help="Script to run [default: %default]")
+    parser.add_argument("-p", "--subparser", dest="subparser", default="ntuple", type=str, help="Subparser for script [default: %default]")
 
     opts, unknown = parser.parse_known_args()
     if opts.fname == "" and opts.flist == "":
@@ -63,8 +64,9 @@ def main():
     for i in range(opts.njobs):
         with open(opts.workdir+"/scripts/job_{i}.sh".format(i=i), "w") as job_script:
             job_script.write(start_up)
+            outfile = opts.workdir+"/out/{name}_{n}.root".format(name=opts.outname, n=i)
             py_string = "python {script} -f {fname} -n {n} -s {start} {subparser} -o {out}\n"
-            py_string = py_string.format(script=opts.scriptname, fname=opts.fname, n=n_per_job, start=i*n_per_job, subparser=opts.scriptname[:-3], out=opts.workdir+"/out/{name}_{n}.root".format(name=opts.outname, n=i))
+            py_string = py_string.format(script=opts.scriptname, fname=opts.fname, n=n_per_job, start=i*n_per_job, subparser=opts.subparser, out=outfile)
             job_script.write(py_string)
             sub_string = "bsub -q {queue} -cwd {cwd} -J job_{i} {dir}/job_{i}.sh\n".format(queue=opts.queue, cwd=out_dir, dir=job_dir, i=i)
             submission_string += sub_string
