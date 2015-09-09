@@ -7,6 +7,7 @@ class TowerIsolator(object):
     pi2 = 2*math.pi
     functions = {}
     ieta_to_ext_bin = {}
+    calibration_factor = []
 
     @staticmethod
     def init_extrapolation(fname):
@@ -14,6 +15,17 @@ class TowerIsolator(object):
         for i, eta_bin in enumerate([0.5, 0.8, 1.1, 1.3, 1.5, 1.7, 1.8, 1.9, 2.0, 2.1]):
             TowerIsolator.functions[i] = fobj.Get("Reco_absdPhiME2Vertex_recoMaxEta"+str(eta_bin))
 
+    @staticmethod
+    def init_calibration():
+        for i in range(100):
+            if i in [0, 1]:
+                TowerIsolator.calibration_factor.append(1.5)
+            elif i in [2]:
+                TowerIsolator.calibration_factor.append(1)
+            elif i in [3, 4, 5, 6, 7, 8, 9, 10]:
+                TowerIsolator.calibration_factor.append(0.75)
+            else:
+                TowerIsolator.calibration_factor.append(0.5)
 
     @staticmethod
     def extrapolate(eta, pt):
