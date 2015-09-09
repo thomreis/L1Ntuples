@@ -53,23 +53,29 @@ def main():
         os.makedirs(opts.outname+"/scripts")
 
     start_up = "cd {cmssw_dir}/src\n".format(cmssw_dir=os.environ["CMSSW_BASE"])
-    start_up += "cmsenv\n"
+    start_up += "eval `scram runtime -sh`\n"
     start_up += "cd {pwd}\n".format(pwd=os.getcwd())
 
     submission_string = ""
+    hadd_string = "hadd " + os.path.abspath(opts.outname+"/out/ntuple_comb.root")+" "
     job_dir = os.path.abspath(opts.outname+"/scripts/")
     for i in range(opts.njobs):
         with open(opts.outname+"/scripts/job_{i}.sh".format(i=i), "w") as job_script:
             job_script.write(start_up)
-            py_string = "python {script} -f {fname} -n {n} -s {start} -o {out}\n"
+            py_string = "python {script} -f {fname} -n {n} -s {start} ntuple -o {out}\n"
             py_string = py_string.format(script=opts.scriptname, fname=opts.fname, n=n_per_job, start=i*n_per_job, out=opts.outname+"/out/ntuple_{n}.root".format(n=i))
             job_script.write(py_string)
-            sub_string = "bsub -1 1nh {dir}/job_{i}.sh\n".format(dir=job_dir, i=i)
+            sub_string = "bsub -q 1nh {dir}/job_{i}.sh\n".format(dir=job_dir, i=i)
             submission_string += sub_string
-
+            hadd_string +=  os.path.abspath(opts.outname+"/out/ntuple_{n}.root".format(n=i))+" "
     with open(opts.outname+"/submit.sh", "w") as submitfile:
         submitfile.write(submission_string)
+    with open(opts.outname+"/combine.sh", "w") as combfile:
+        combfile.write(hadd_string)
 
+    print "Will process", n_per_job, "events per job"
+    print "execute", opts.outname+"/submit.sh", "to submit"
+    print "after completion run", opts.outname+"/combine.sh", "to combine the ntuples."
 
 if __name__ == "__main__":
     main()
