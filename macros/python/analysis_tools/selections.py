@@ -55,8 +55,9 @@ class Matcher(object):
 
         for i in idcs1:
             for j in idcs2:
-                deta = math.fabs(eta_coll1[i] - eta_coll2[j])
-                if deta > cut:  # don't bother with the rest
+                deta = eta_coll1[i] - eta_coll2[j]
+                abs_deta = math.fabs(deta)
+                if abs_deta > cut:  # don't bother with the rest
                     continue
                 phi1 = phi_coll1[i]
                 phi2 = phi_coll2[j]
@@ -64,7 +65,7 @@ class Matcher(object):
                     phi1 = Matcher.norm_phi(phi1)
                     phi2 = Matcher.norm_phi(phi2)
                 dphi = Matcher.delta_phi(phi1, phi2)
-                dr = math.sqrt(deta*deta + dphi*dphi)
+                dr = math.sqrt(abs_deta*abs_deta + dphi*dphi)
                 if dr < cut:
                     index_tuples.append([i, j, dr, deta, dphi])
 
@@ -94,11 +95,6 @@ class MuonSelections(object):
                 continue
             if not (ugmt.tfLink[i].tf in type_acc):
                 continue
-            if ugmt.tfLink[i].tf == 1:
-                tf = ugmt.tfInfo[ugmt.tfLink[i].tf]
-                k = ugmt.tfLink[i].idx
-                if tf.trAddress[k] == 99840 or tf.trAddress[k] == 34304 or tf.trAddress[k] == 3075 or tf.trAddress[k] == 36928 or tf.trAddress[k] == 12300 or tf.trAddress[k] == 98816 or tf.trAddress[k] == 98944 or tf.trAddress[k] == 33408 or tf.trAddress[k] == 66688 or tf.trAddress[k] == 66176:
-                    continue
             indices.append(i)
         return indices
 
@@ -116,6 +112,9 @@ class MuonSelections(object):
                 continue
             if tftype == 1:
                 if tf.trAddress[i] == 99840 or tf.trAddress[i] == 34304 or tf.trAddress[i] == 3075 or tf.trAddress[i] == 36928 or tf.trAddress[i] == 12300 or tf.trAddress[i] == 98816 or tf.trAddress[i] == 98944 or tf.trAddress[i] == 33408 or tf.trAddress[i] == 66688 or tf.trAddress[i] == 66176:
+                    continue
+            if tftype == 2:
+                if tf.qual[i] != 11 and tf.qual[i] <= 12:
                     continue
             indices.append(i)
         return indices
