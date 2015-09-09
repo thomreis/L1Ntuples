@@ -3,8 +3,8 @@ from array import array
 
 
 class HistManager(object):
-    """docstring for HistManager"""
-    def __init__(self, varnames, binning_dict, ytitle="# Muons", prefix=""):
+    """Class that manages and holds histograms"""
+    def __init__(self, varnames=[], binning_dict={}, ytitle="# Muons", prefix="", filename=None):
         super(HistManager, self).__init__()
         self.varnames = varnames
         self.binnings = binning_dict
@@ -18,27 +18,41 @@ class HistManager(object):
         self._ratiocache = {}
         self._thresholdcache = {}
 
-        for vname in varnames:
-            have_unit = type(self.binnings[vname][-2]) is str
-            # variable binning when nBins == -1
-            if self.binnings[vname][0] < 0:
-                if have_unit:
-                    self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-4, array('d', self.binnings[vname][1:-2]))
+        if filename is None:
+            for vname in varnames:
+                have_unit = type(self.binnings[vname][-2]) is str
+                # variable binning when nBins == -1
+                if self.binnings[vname][0] < 0:
+                    if have_unit:
+                        self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-4, array('d', self.binnings[vname][1:-2]))
+                    else:
+                        self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-3, array('d', self.binnings[vname][1:-1]))
+                # fixed binning
                 else:
-                    self.hists[vname] = root.TH1D(prefix+vname, "", len(self.binnings[vname])-3, array('d', self.binnings[vname][1:-1]))
-            # fixed binning
-            else:
-                self.hists[vname] = root.TH1D(prefix+vname, "", self.binnings[vname][0], self.binnings[vname][1], self.binnings[vname][2])
-            self.hists[vname].Sumw2()
-            if not have_unit:
-                xtitle = self.binnings[vname][-1]
-            elif self.binnings[vname][-1] is None:
-                xtitle = self.binnings[vname][-2]
-            else:
-                xtitle = "{title} ({unit})".format(title=self.binnings[vname][-2], unit=self.binnings[vname][-1])
+                    self.hists[vname] = root.TH1D(prefix+vname, "", self.binnings[vname][0], self.binnings[vname][1], self.binnings[vname][2])
+                self.hists[vname].Sumw2()
+                if not have_unit:
+                    xtitle = self.binnings[vname][-1]
+                elif self.binnings[vname][-1] is None:
+                    xtitle = self.binnings[vname][-2]
+                else:
+                    xtitle = "{title} ({unit})".format(title=self.binnings[vname][-2], unit=self.binnings[vname][-1])
 
-            self.hists[vname].GetXaxis().SetTitle(xtitle)
-            self.hists[vname].GetYaxis().SetTitle(ytitle)
+                self.hists[vname].GetXaxis().SetTitle(xtitle)
+                self.hists[vname].GetYaxis().SetTitle(ytitle)
+        else:
+            self.varnames = []
+            input = root.TFile(filename)
+            keyList = input.GetListOfKeys()
+            for key in keyList:
+                hName = key.GetName()
+                self.varnames.append(hName)
+                self.hists[hName] = input.Get(hName)
+                self.hists[hName].SetDirectory(0)
+            input.Close()
+
+    def fill(self, varname, val):
+        self.hists[varname].Fill(val)
 
     def get(self, varname):
         return self.hists[varname]

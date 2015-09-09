@@ -1,5 +1,6 @@
 #include "../interface/L1AnalysisUGMT.h"
 #include "DataFormats/L1TMuon/interface/L1TRegionalMuonCandidate.h"
+#include "DataFormats/L1TMuon/interface/L1TGMTInternalMuon.h"
 
 
 namespace L1Analysis {
@@ -12,9 +13,12 @@ void
 L1AnalysisUGMT::fillTrackFinder(const L1TRegionalMuonColl& coll, tftype mytype, int& ctr, int bx) {
   for (auto mu = coll.begin(); mu != coll.end(); ++mu) {
       ctr++;
+      l1t::tftype regTf = mu->trackFinderType();
+      l1t::L1TGMTInternalMuon gmtIntMuon;
+      int globPhi = gmtIntMuon.calcGlobalPhi(mu->hwPhi(), regTf, mu->processor());
       ugmt_.tfInfo[mytype].pt.push_back(mu->hwPt() * 0.5f);
       ugmt_.tfInfo[mytype].eta.push_back(mu->hwEta() * 0.010875);
-      ugmt_.tfInfo[mytype].phi.push_back(mu->hwPhi() * 0.010908);
+      ugmt_.tfInfo[mytype].phi.push_back(globPhi * 0.010908);
       ugmt_.tfInfo[mytype].qual.push_back(mu->hwQual());
       ugmt_.tfInfo[mytype].ch.push_back(mu->hwSign());
       ugmt_.tfInfo[mytype].bx.push_back(bx);
