@@ -12,9 +12,9 @@
 #include "L1TriggerDPG/L1Ntuples/interface/L1AnalysisUGMTDataFormat.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1TMuon/interface/L1TRegionalMuonCandidateFwd.h"
-#include "DataFormats/L1TMuon/interface/L1TGMTInputCaloSumFwd.h"
-#include "DataFormats/L1TMuon/interface/L1TGMTInputCaloSum.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1TMuon/interface/GMTInputCaloSumFwd.h"
+#include "DataFormats/L1TMuon/interface/GMTInputCaloSum.h"
 // output
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -65,6 +65,13 @@ L1MuonUpgradeTreeProducer::L1MuonUpgradeTreeProducer(const edm::ParameterSet& iC
   calo2x2Tag_(iConfig.getParameter<edm::InputTag>("calo2x2Tag")),
   caloTag_(iConfig.getParameter<edm::InputTag>("caloTag"))
 {
+  consumes<l1t::RegionalMuonCandBxCollection>(bmtfTag_);
+  consumes<l1t::RegionalMuonCandBxCollection>(omtfTag_);
+  consumes<l1t::RegionalMuonCandBxCollection>(emtfTag_);
+  consumes<l1t::CaloTowerBxCollection>(caloTag_);
+  consumes<l1t::GMTInputCaloSumBxCollection>(calo2x2Tag_);
+  consumes<l1t::MuonBxCollection>(ugmtTag_);
+
   ugmtData = ugmt.getData();
   twrData = new L1Analysis::L1AnalysisMuTwrDataFormat();
   twr2x2Data = new L1Analysis::L1AnalysisMuTwrDataFormat();
@@ -87,11 +94,11 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   twrData->Reset();
   twr2x2Data->Reset();
 
-  edm::Handle<l1t::L1TRegionalMuonCandidateCollection> bmtfMuons;
-  edm::Handle<l1t::L1TRegionalMuonCandidateCollection> emtfMuons;
-  edm::Handle<l1t::L1TRegionalMuonCandidateCollection> omtfMuons;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuons;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> emtfMuons;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;
   edm::Handle<l1t::MuonBxCollection> ugmtMuons;
-  edm::Handle<l1t::L1TGMTInputCaloSumCollection> calo2x2Twrs;
+  edm::Handle<l1t::GMTInputCaloSumBxCollection> calo2x2Twrs;
   edm::Handle<l1t::CaloTowerBxCollection> caloTwrs;
 
 
@@ -104,7 +111,7 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   // iEvent.getByLabel(m_trigTowerTag, trigTowers);
   if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
     ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, true);
-    for (auto it = calo2x2Twrs->begin(); it != calo2x2Twrs->end(); ++it) {
+    for (auto it = calo2x2Twrs->begin(0); it != calo2x2Twrs->end(0); ++it) {
 
       twr2x2Data->packedPt.push_back(it->etBits());
       twr2x2Data->packedEta.push_back(it->hwEta());
@@ -116,7 +123,7 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
       // twrData->eta.push_back(eta);
       // twrData->phi.push_back((it->hwPhi() * 2 + 1) * 0.087266);
    }
-   twr2x2Data->n = calo2x2Twrs->size();
+   twr2x2Data->n = calo2x2Twrs->size(0);
    for (auto it = caloTwrs->begin(0); it != caloTwrs->end(0); ++it) {
       const l1t::CaloTower& twr = *it;
       twrData->packedPhi.push_back(twr.hwPhi());

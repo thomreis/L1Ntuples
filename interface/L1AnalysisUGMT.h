@@ -2,12 +2,12 @@
 #define __L1Analysis_L1AnalysisUGMT_H__
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
-#include "DataFormats/L1TMuon/interface/L1TRegionalMuonCandidateFwd.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "L1AnalysisUGMTDataFormat.h"
 
 namespace L1Analysis
 {
-  typedef l1t::L1TRegionalMuonCandidateCollection L1TRegionalMuonColl;
+  typedef l1t::RegionalMuonCandBxCollection L1TRegionalMuonColl;
   class L1AnalysisUGMT
   {
   public:
@@ -20,6 +20,8 @@ namespace L1Analysis
 
   private :
     void fillTrackFinder(const L1TRegionalMuonColl&, tftype, int&, int);
+    TFLink matchTrackFinder(const l1t::Muon&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, int);
+    int findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, int bx);
     L1AnalysisUGMTDataFormat ugmt_;
 
   };
