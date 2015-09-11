@@ -79,8 +79,10 @@ def main():
 
     with open(opts.workdir+"/submit.sh", "w") as submitfile:
         submitfile.write(submission_string)
+    os.system('chmod 744 {dir}/submit.sh'.format(dir=opts.workdir))
     with open(opts.workdir+"/combine.sh", "w") as combfile:
         combfile.write(hadd_string)
+    os.system('chmod 744 {dir}/combine.sh'.format(dir=opts.workdir))
 
     print "Will process", n_per_job, "events per job"
     print "execute", opts.outname+"/submit.sh", "to submit"
