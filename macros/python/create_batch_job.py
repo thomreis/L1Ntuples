@@ -79,7 +79,7 @@ def main():
 
     with open(opts.workdir+"/submit.sh", "w") as submitfile:
         submitfile.write(submission_string)
-    with open(opts.outname+"/combine.sh", "w") as combfile:
+    with open(opts.workdir+"/combine.sh", "w") as combfile:
         combfile.write(hadd_string)
 
     print "Will process", n_per_job, "events per job"
