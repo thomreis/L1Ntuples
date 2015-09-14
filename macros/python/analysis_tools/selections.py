@@ -30,13 +30,6 @@ class Matcher(object):
         return math.sqrt(deta*deta + dphi*dphi)
 
     @staticmethod
-    def converted_phi(tf_coll, tftype):
-        conv_phi = []
-        for i in range(tf_coll.phi.size()):
-            conv_phi.append(root.l1t.L1TGMTInternalMuon.calcGlobalPhi(tf_coll.packedPhi[i], tftype, tf_coll.processor[i]) * 0.010908)
-        return conv_phi
-
-    @staticmethod
     def match_dr(eta_coll1, phi_coll1, eta_coll2, phi_coll2, cut=0.5, phi_normalize=True, idcs1=None, idcs2=None):
         """
         Matching based on delta R (dR = sqrt(dEta^2 + dPhi^2)):
