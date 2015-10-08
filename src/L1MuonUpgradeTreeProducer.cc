@@ -15,6 +15,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuon/interface/GMTInputCaloSumFwd.h"
 #include "DataFormats/L1TMuon/interface/GMTInputCaloSum.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 // output
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -37,6 +38,7 @@ public:
   L1Analysis::L1AnalysisUGMT ugmt;
   L1Analysis::L1AnalysisUGMTDataFormat* ugmtData;
   L1Analysis::L1AnalysisMuTwrDataFormat* twrData;
+  L1Analysis::L1AnalysisMuTwrDataFormat* twrRecoData;
   L1Analysis::L1AnalysisMuTwrDataFormat* twr2x2Data;
 
 private:
@@ -50,9 +52,11 @@ private:
   edm::InputTag bmtfTag_;
   edm::InputTag omtfTag_;
   edm::InputTag emtfTag_;
+  edm::InputTag brlRpcTag_;
   edm::InputTag ugmtTag_;
   edm::InputTag calo2x2Tag_;
   edm::InputTag caloTag_;
+  edm::InputTag caloRecoTag_;
 };
 
 
@@ -61,24 +65,30 @@ L1MuonUpgradeTreeProducer::L1MuonUpgradeTreeProducer(const edm::ParameterSet& iC
   bmtfTag_(iConfig.getParameter<edm::InputTag>("bmtfTag")),
   omtfTag_(iConfig.getParameter<edm::InputTag>("omtfTag")),
   emtfTag_(iConfig.getParameter<edm::InputTag>("emtfTag")),
+  brlRpcTag_(iConfig.getParameter<edm::InputTag>("brlRpcTag")),
   ugmtTag_(iConfig.getParameter<edm::InputTag>("ugmtTag")),
   calo2x2Tag_(iConfig.getParameter<edm::InputTag>("calo2x2Tag")),
-  caloTag_(iConfig.getParameter<edm::InputTag>("caloTag"))
+  caloTag_(iConfig.getParameter<edm::InputTag>("caloTag")),
+  caloRecoTag_(iConfig.getParameter<edm::InputTag>("caloRecoTag"))
 {
   consumes<l1t::RegionalMuonCandBxCollection>(bmtfTag_);
   consumes<l1t::RegionalMuonCandBxCollection>(omtfTag_);
   consumes<l1t::RegionalMuonCandBxCollection>(emtfTag_);
+  consumes<l1t::RegionalMuonCandBxCollection>(brlRpcTag_);
   consumes<l1t::CaloTowerBxCollection>(caloTag_);
+  mayConsume<CaloTowerCollection>(caloRecoTag_);
   consumes<l1t::GMTInputCaloSumBxCollection>(calo2x2Tag_);
   consumes<l1t::MuonBxCollection>(ugmtTag_);
 
   ugmtData = ugmt.getData();
   twrData = new L1Analysis::L1AnalysisMuTwrDataFormat();
   twr2x2Data = new L1Analysis::L1AnalysisMuTwrDataFormat();
+  twrRecoData = new L1Analysis::L1AnalysisMuTwrDataFormat();
   tree_ = fs_->make<TTree>("L1MuonUpgradeTree", "L1MuonUpgradeTree");
   tree_->Branch("L1TMuon", "L1Analysis::L1AnalysisUGMTDataFormat", &ugmtData, 32000, 3);
   tree_->Branch("L1TMuonCalo2x2", "L1Analysis::L1AnalysisMuTwrDataFormat", &twr2x2Data, 32000, 3);
   tree_->Branch("L1TMuonCalo", "L1Analysis::L1AnalysisMuTwrDataFormat", &twrData, 32000, 3);
+  tree_->Branch("L1TMuonRecoCalo", "L1Analysis::L1AnalysisMuTwrDataFormat", &twrRecoData, 32000, 3);
 }
 
 
@@ -93,24 +103,29 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   ugmt.Reset();
   twrData->Reset();
   twr2x2Data->Reset();
+  twrRecoData->Reset();
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuons;
   edm::Handle<l1t::RegionalMuonCandBxCollection> emtfMuons;
   edm::Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> brlRpcMuons;
   edm::Handle<l1t::MuonBxCollection> ugmtMuons;
   edm::Handle<l1t::GMTInputCaloSumBxCollection> calo2x2Twrs;
   edm::Handle<l1t::CaloTowerBxCollection> caloTwrs;
+  edm::Handle<CaloTowerCollection> caloRecoTwrs;
 
 
   iEvent.getByLabel(bmtfTag_, bmtfMuons);
   iEvent.getByLabel(emtfTag_, emtfMuons);
   iEvent.getByLabel(omtfTag_, omtfMuons);
+  iEvent.getByLabel(brlRpcTag_, brlRpcMuons);
   iEvent.getByLabel(ugmtTag_, ugmtMuons);
   iEvent.getByLabel(calo2x2Tag_, calo2x2Twrs);
   iEvent.getByLabel(caloTag_, caloTwrs);
+
   // iEvent.getByLabel(m_trigTowerTag, trigTowers);
-  if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
-    ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, true);
+  if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && brlRpcMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
+    ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, *brlRpcMuons, true);
     for (auto it = calo2x2Twrs->begin(0); it != calo2x2Twrs->end(0); ++it) {
 
       twr2x2Data->packedPt.push_back(it->etBits());
@@ -135,6 +150,14 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   } else {
     edm::LogError("MissingProduct") << "L1Upgrade GMT inputs and / or output not found" << std::endl;
     return;
+  }
+  if (caloRecoTag_.label() != "none") {
+    iEvent.getByLabel(caloRecoTag_, caloRecoTwrs);
+    for(auto it = caloRecoTwrs->begin(); it != caloRecoTwrs->end(); ++it) {
+      twrRecoData->packedPhi.push_back(it->iphi());
+      twrRecoData->packedEta.push_back(it->ieta());
+      twrRecoData->packedPt.push_back((it->emEt() + it->hadEt())*10);
+    }
   }
   tree_->Fill();
 }

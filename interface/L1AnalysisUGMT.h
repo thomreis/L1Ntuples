@@ -14,13 +14,13 @@ namespace L1Analysis
     L1AnalysisUGMT();
     ~L1AnalysisUGMT() {};
 
-    void Set(const l1t::MuonBxCollection&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, bool);
+    void Set(const l1t::MuonBxCollection&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, bool);
     L1AnalysisUGMTDataFormat * getData() { return &ugmt_; }
     void Reset() { ugmt_.Reset(); }
 
   private :
     void fillTrackFinder(const L1TRegionalMuonColl&, tftype, int&, int);
-    TFLink matchTrackFinder(const l1t::Muon&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, int);
+    TFLink matchTrackFinder(const l1t::Muon&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, const L1TRegionalMuonColl&, int);
     int findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, int bx);
     L1AnalysisUGMTDataFormat ugmt_;
 

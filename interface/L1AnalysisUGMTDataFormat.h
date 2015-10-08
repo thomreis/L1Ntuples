@@ -8,7 +8,7 @@
 namespace L1Analysis
 {
   enum tftype {
-    bmtf = 0, omtf, emtf
+    bmtf = 0, omtf, emtf, brlRpc
   };
 
   class L1AnalysisRegMuonDataFormat {
@@ -134,6 +134,7 @@ namespace L1Analysis
       tfInfo.emplace(tftype::bmtf, L1AnalysisRegMuonDataFormat(108));
       tfInfo.emplace(tftype::omtf, L1AnalysisRegMuonDataFormat(108));
       tfInfo.emplace(tftype::emtf, L1AnalysisRegMuonDataFormat(108));;
+      tfInfo.emplace(tftype::brlRpc, L1AnalysisRegMuonDataFormat(108));
     };
     ~L1AnalysisUGMTDataFormat() {};
 
@@ -155,6 +156,7 @@ namespace L1Analysis
       nBmtf = 0;
       nEmtf = 0;
       nOmtf = 0;
+      nBrlRpc = 0;
 
       relIso.clear();
       absIso.clear();
@@ -166,6 +168,7 @@ namespace L1Analysis
       tfInfo.at(bmtf).ResetRegional();
       tfInfo.at(emtf).ResetRegional();
       tfInfo.at(omtf).ResetRegional();
+      tfInfo.at(brlRpc).ResetRegional();
     }
 
     // member data (public to be compatible with legacy)
@@ -184,6 +187,7 @@ namespace L1Analysis
     int nBmtf;
     int nEmtf;
     int nOmtf;
+    int nBrlRpc;
 
     std::vector<bool> isFinal;
 
