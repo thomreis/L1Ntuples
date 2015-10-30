@@ -48,7 +48,13 @@ L1AnalysisUGMT::findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, i
 }
 
 TFLink
-L1AnalysisUGMT::matchTrackFinder(const l1t::Muon& mu, const L1TRegionalMuonColl& bmtf, const L1TRegionalMuonColl& omtf, const L1TRegionalMuonColl& emtf, const L1TRegionalMuonColl& brlRpc, int bx)
+L1AnalysisUGMT::matchTrackFinder(const l1t::Muon& mu,
+                                 const L1TRegionalMuonColl& bmtf,
+                                 const L1TRegionalMuonColl& omtf,
+                                 const L1TRegionalMuonColl& emtf,
+                                 const L1TRegionalMuonColl& brlRpc,
+                                 const L1TRegionalMuonColl& fwdRpc,
+                                 int bx)
 {
   int match = -1;
   match = findMuon(mu, bmtf, bx);
@@ -67,6 +73,10 @@ L1AnalysisUGMT::matchTrackFinder(const l1t::Muon& mu, const L1TRegionalMuonColl&
   if (match >= 0) {
     return TFLink(L1Analysis::tftype::brlRpc, match);
   }
+  match = findMuon(mu, fwdRpc, bx);
+  if (match >= 0) {
+    return TFLink(L1Analysis::tftype::fwdRpc, match);
+  }
   return TFLink();
 }
 
@@ -77,17 +87,20 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
                     const L1TRegionalMuonColl& omtfColl,
                     const L1TRegionalMuonColl& emtfColl,
                     const L1TRegionalMuonColl& brlRpcColl,
+                    const L1TRegionalMuonColl& fwdRpcColl,
                     bool onlyBX0) {
   int ugmtCtr = 0;
   int bmtfCtr = 0;
   int omtfCtr = 0;
   int emtfCtr = 0;
   int brlRpcCtr = 0;
+  int fwdRpcCtr = 0;
 
   int lastBXMaxBmtf = 0;
   int lastBXMaxOmtf = 0;
   int lastBXMaxEmtf = 0;
   int lastBXMaxBrlRpc = 0;
+  int lastBXMaxFwdRpc = 0;
 
   for (int bx = ugmtrc.getFirstBX(); bx <= ugmtrc.getLastBX(); ++bx) {
     if (bx != 0 && onlyBX0) {
@@ -116,11 +129,12 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
       ugmt_.packedIso.push_back(mu->hwIso());
       // keep the vector index in synch with the collection index:
       // add offset of the max muon index of last BX
-      TFLink tfL = matchTrackFinder(*mu, bmtfColl, omtfColl, emtfColl, brlRpcColl, bx);
+      TFLink tfL = matchTrackFinder(*mu, bmtfColl, omtfColl, emtfColl, brlRpcColl, fwdRpcColl, bx);
       if (tfL.tf == L1Analysis::tftype::bmtf) tfL.idx += lastBXMaxBmtf;
       if (tfL.tf == L1Analysis::tftype::omtf) tfL.idx += lastBXMaxOmtf;
       if (tfL.tf == L1Analysis::tftype::emtf) tfL.idx += lastBXMaxEmtf;
       if (tfL.tf == L1Analysis::tftype::brlRpc) tfL.idx += lastBXMaxBrlRpc;
+      if (tfL.tf == L1Analysis::tftype::fwdRpc) tfL.idx += lastBXMaxFwdRpc;
 
       ugmt_.tfLink.push_back(tfL);
     }
@@ -129,11 +143,13 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
     fillTrackFinder(omtfColl, tftype::omtf, omtfCtr, bx);
     fillTrackFinder(emtfColl, tftype::emtf, emtfCtr, bx);
     fillTrackFinder(brlRpcColl, tftype::brlRpc, brlRpcCtr, bx);
+    fillTrackFinder(fwdRpcColl, tftype::fwdRpc, fwdRpcCtr, bx);
 
     lastBXMaxBmtf = bmtfCtr;
     lastBXMaxOmtf = omtfCtr;
     lastBXMaxEmtf = emtfCtr;
     lastBXMaxBrlRpc = brlRpcCtr;
+    lastBXMaxFwdRpc = fwdRpcCtr;
   }
 
   ugmt_.n = ugmtCtr;
@@ -141,6 +157,7 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
   ugmt_.nOmtf = omtfCtr;
   ugmt_.nEmtf = emtfCtr;
   ugmt_.nBrlRpc = brlRpcCtr;
+  ugmt_.nFwdRpc = fwdRpcCtr;
 }
 
 } // namespace L1Analysis

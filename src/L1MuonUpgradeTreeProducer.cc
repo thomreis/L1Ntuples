@@ -53,6 +53,7 @@ private:
   edm::InputTag omtfTag_;
   edm::InputTag emtfTag_;
   edm::InputTag brlRpcTag_;
+  edm::InputTag fwdRpcTag_;
   edm::InputTag ugmtTag_;
   edm::InputTag calo2x2Tag_;
   edm::InputTag caloTag_;
@@ -66,6 +67,7 @@ L1MuonUpgradeTreeProducer::L1MuonUpgradeTreeProducer(const edm::ParameterSet& iC
   omtfTag_(iConfig.getParameter<edm::InputTag>("omtfTag")),
   emtfTag_(iConfig.getParameter<edm::InputTag>("emtfTag")),
   brlRpcTag_(iConfig.getParameter<edm::InputTag>("brlRpcTag")),
+  fwdRpcTag_(iConfig.getParameter<edm::InputTag>("fwdRpcTag")),
   ugmtTag_(iConfig.getParameter<edm::InputTag>("ugmtTag")),
   calo2x2Tag_(iConfig.getParameter<edm::InputTag>("calo2x2Tag")),
   caloTag_(iConfig.getParameter<edm::InputTag>("caloTag")),
@@ -75,6 +77,7 @@ L1MuonUpgradeTreeProducer::L1MuonUpgradeTreeProducer(const edm::ParameterSet& iC
   consumes<l1t::RegionalMuonCandBxCollection>(omtfTag_);
   consumes<l1t::RegionalMuonCandBxCollection>(emtfTag_);
   consumes<l1t::RegionalMuonCandBxCollection>(brlRpcTag_);
+  consumes<l1t::RegionalMuonCandBxCollection>(fwdRpcTag_);
   consumes<l1t::CaloTowerBxCollection>(caloTag_);
   mayConsume<CaloTowerCollection>(caloRecoTag_);
   consumes<l1t::GMTInputCaloSumBxCollection>(calo2x2Tag_);
@@ -109,6 +112,7 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<l1t::RegionalMuonCandBxCollection> emtfMuons;
   edm::Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;
   edm::Handle<l1t::RegionalMuonCandBxCollection> brlRpcMuons;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> fwdRpcMuons;
   edm::Handle<l1t::MuonBxCollection> ugmtMuons;
   edm::Handle<l1t::GMTInputCaloSumBxCollection> calo2x2Twrs;
   edm::Handle<l1t::CaloTowerBxCollection> caloTwrs;
@@ -119,13 +123,14 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   iEvent.getByLabel(emtfTag_, emtfMuons);
   iEvent.getByLabel(omtfTag_, omtfMuons);
   iEvent.getByLabel(brlRpcTag_, brlRpcMuons);
+  iEvent.getByLabel(fwdRpcTag_, fwdRpcMuons);
   iEvent.getByLabel(ugmtTag_, ugmtMuons);
   iEvent.getByLabel(calo2x2Tag_, calo2x2Twrs);
   iEvent.getByLabel(caloTag_, caloTwrs);
 
   // iEvent.getByLabel(m_trigTowerTag, trigTowers);
-  if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && brlRpcMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
-    ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, *brlRpcMuons, true);
+  if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && brlRpcMuons.isValid() && fwdRpcMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
+    ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, *brlRpcMuons, *fwdRpcMuons, true);
     for (auto it = calo2x2Twrs->begin(0); it != calo2x2Twrs->end(0); ++it) {
 
       twr2x2Data->packedPt.push_back(it->etBits());
