@@ -23,7 +23,12 @@ L1AnalysisUGMT::fillTrackFinder(const L1TRegionalMuonColl& coll, tftype mytype, 
       ugmt_.tfInfo[mytype].ch.push_back(mu->hwSign());
       ugmt_.tfInfo[mytype].bx.push_back(bx);
       ugmt_.tfInfo[mytype].processor.push_back(mu->processor());
-      ugmt_.tfInfo[mytype].trAddress.push_back(mu->hwTrackAddress());
+      // FIXME: adapt to new track address scheme
+      if (mu->trackAddress().count(0) > 0) {
+        ugmt_.tfInfo[mytype].trAddress.push_back(mu->trackAddress().at(0));
+      } else {
+        ugmt_.tfInfo[mytype].trAddress.push_back(0);
+      }
 
       ugmt_.tfInfo[mytype].packedPt.push_back(mu->hwPt());
       ugmt_.tfInfo[mytype].packedEta.push_back(mu->hwEta());
@@ -36,8 +41,9 @@ L1AnalysisUGMT::findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, i
 {
   for (unsigned i = 0; i < coll.size(bx); ++i) {
     auto tf = coll.at(bx, i);
+    int phi = l1t::MicroGMTConfiguration::calcGlobalPhi(tf.hwPhi(), tf.trackFinderType(), tf.processor());
     if (tf.hwEta() == mu.hwEta() &&
-        tf.hwPhi() == mu.hwPhi() &&
+        phi == mu.hwPhi() &&
         tf.hwPt() == mu.hwPt() &&
         tf.hwQual() == mu.hwQual()) {
       return i;
@@ -72,49 +78,51 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
                     const L1TRegionalMuonColl& omtfColl,
                     const L1TRegionalMuonColl& emtfColl,
                     bool onlyBX0) {
-	int ugmtCtr = 0;
-	int bmtfCtr = 0;
-	int omtfCtr = 0;
-	int emtfCtr = 0;
+  int ugmtCtr = 0;
+  int bmtfCtr = 0;
+  int omtfCtr = 0;
+  int emtfCtr = 0;
 
   int lastBXMaxBmtf = 0;
   int lastBXMaxOmtf = 0;
   int lastBXMaxEmtf = 0;
 
-	for (int bx = ugmtrc.getFirstBX(); bx <= ugmtrc.getLastBX(); ++bx) {
-		if (bx != 0 && onlyBX0) {
-			continue;
-		}
-		for (auto mu = ugmtrc.begin(bx); mu != ugmtrc.end(bx); ++mu) {
-			ugmtCtr++;
+  for (int bx = ugmtrc.getFirstBX(); bx <= ugmtrc.getLastBX(); ++bx) {
+    if (bx != 0 && onlyBX0) {
+      continue;
+    }
+    if (ugmtrc.size(bx) > 0) { // this might seen unnecessary but prevents a segmentation fault
+      for (auto mu = ugmtrc.begin(bx); mu != ugmtrc.end(bx); ++mu) {
+        ugmtCtr++;
 
-      ugmt_.pt.push_back(mu->pt());
-      ugmt_.eta.push_back(mu->eta());
-      ugmt_.phi.push_back(mu->phi());
-      ugmt_.qual.push_back(mu->hwQual());
-      ugmt_.ch.push_back(mu->hwCharge());
-      ugmt_.bx.push_back(bx);
+        ugmt_.pt.push_back(mu->pt());
+        ugmt_.eta.push_back(mu->eta());
+        ugmt_.phi.push_back(mu->phi());
+        ugmt_.qual.push_back(mu->hwQual());
+        ugmt_.ch.push_back(mu->hwCharge());
+        ugmt_.bx.push_back(bx);
 
-      ugmt_.packedPt.push_back(mu->hwPt());
-      ugmt_.packedEta.push_back(mu->hwEta());
-      ugmt_.packedPhi.push_back(mu->hwPhi());
+        ugmt_.packedPt.push_back(mu->hwPt());
+        ugmt_.packedEta.push_back(mu->hwEta());
+        ugmt_.packedPhi.push_back(mu->hwPhi());
 
-      // second bit = rel iso, first bit = abs iso
-      ugmt_.relIso.push_back((mu->hwIso() & 2) << 1);
-      ugmt_.absIso.push_back(mu->hwIso() & 1);
-      ugmt_.isoEnergy.push_back(mu->hwIsoSum());
+        // second bit = rel iso, first bit = abs iso
+        ugmt_.relIso.push_back((mu->hwIso() & 2) << 1);
+        ugmt_.absIso.push_back(mu->hwIso() & 1);
+        ugmt_.isoEnergy.push_back(mu->hwIsoSum());
 
-      ugmt_.rank.push_back(mu->hwRank());
-      ugmt_.packedIso.push_back(mu->hwIso());
-      // keep the vector index in synch with the collection index:
-      // add offset of the max muon index of last BX
-      TFLink tfL = matchTrackFinder(*mu, bmtfColl, omtfColl, emtfColl, bx);
-      if (tfL.tf == L1Analysis::tftype::bmtf) tfL.idx += lastBXMaxBmtf;
-      if (tfL.tf == L1Analysis::tftype::omtf) tfL.idx += lastBXMaxOmtf;
-      if (tfL.tf == L1Analysis::tftype::emtf) tfL.idx += lastBXMaxEmtf;
+        ugmt_.rank.push_back(mu->hwRank());
+        ugmt_.packedIso.push_back(mu->hwIso());
+        // keep the vector index in synch with the collection index:
+        // add offset of the max muon index of last BX
+        TFLink tfL = matchTrackFinder(*mu, bmtfColl, omtfColl, emtfColl, bx);
+        if (tfL.tf == L1Analysis::tftype::bmtf) tfL.idx += lastBXMaxBmtf;
+        if (tfL.tf == L1Analysis::tftype::omtf) tfL.idx += lastBXMaxOmtf;
+        if (tfL.tf == L1Analysis::tftype::emtf) tfL.idx += lastBXMaxEmtf;
 
-      ugmt_.tfLink.push_back(tfL);
-		}
+        ugmt_.tfLink.push_back(tfL);
+      }
+    }
 
     fillTrackFinder(bmtfColl, tftype::bmtf, bmtfCtr, bx);
     fillTrackFinder(omtfColl, tftype::omtf, omtfCtr, bx);
@@ -123,7 +131,7 @@ L1AnalysisUGMT::Set(const l1t::MuonBxCollection& ugmtrc,
     lastBXMaxBmtf = bmtfCtr;
     lastBXMaxOmtf = omtfCtr;
     lastBXMaxEmtf = emtfCtr;
-	}
+  }
 
   ugmt_.n = ugmtCtr;
   ugmt_.nBmtf = bmtfCtr;
