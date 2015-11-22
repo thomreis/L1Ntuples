@@ -50,6 +50,7 @@ public:
   TChain          *ftreeExtra;
   TChain          *ftreeMenu;
   TChain          *ftreeEmuExtra;
+  TChain          *ftreeMuonUp;
   Int_t            fCurrent; //!current Tree number in a TChain
 
   bool doreco;
@@ -57,6 +58,7 @@ public:
   bool dol1extra;
   bool dol1emuextra;
   bool dol1menu;
+  bool domuonup;
 
   L1Analysis::L1AnalysisEventDataFormat        *event_;
   L1Analysis::L1AnalysisSimulationDataFormat   *simulation_;
@@ -77,6 +79,7 @@ public:
   L1Analysis::L1AnalysisRecoVertexDataFormat   *recoVertex_;
   L1Analysis::L1AnalysisRecoTrackDataFormat    *recoTrack_;
   L1Analysis::L1AnalysisL1MenuDataFormat       *l1menu_;
+  L1Analysis::L1AnalysisUGMTDataFormat       *ugmt_;
 
   L1Ntuple();
   L1Ntuple(const std::string & fname);

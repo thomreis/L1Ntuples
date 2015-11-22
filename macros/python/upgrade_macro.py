@@ -4,18 +4,17 @@ from ToolBox import parse_options_and_init_log
 opts, parser = parse_options_and_init_log()
 
 from L1Analysis import L1Ana, L1Ntuple
-import ROOT as root
+
 
 def analyse(evt):
     # USER HOOK
     # do what you want to do with the ntuples here
     # example:
-    print evt.gmt.N
-    print evt.recoMuon.nMuons
+    print "GMT:", evt.gmt.N
+    print "UGMT:", evt.ugmt.n
 
 
 def main():
-    root.gROOT.SetBatch()
     L1Ana.init_l1_analysis()
     print ""
 
@@ -30,8 +29,10 @@ def main():
     end_evt = opts.start_event+ntuple.nevents
     for i in range(start_evt, end_evt):
         event = ntuple[i]
-        if (i+1) % 1000 == 0: L1Ana.log.info("Processing event: {n}".format(n=i))
+        if (i+1) % 1000 == 0:
+            L1Ana.log.info("Processing event: {n}".format(n=i))
         analyse(event)
 
 if __name__ == "__main__":
     main()
+
