@@ -13,8 +13,8 @@
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
-#include "DataFormats/L1TMuon/interface/GMTInputCaloSumFwd.h"
-#include "DataFormats/L1TMuon/interface/GMTInputCaloSum.h"
+#include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
+#include "DataFormats/L1TMuon/interface/MuonCaloSumFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 // output
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -74,7 +74,7 @@ L1MuonUpgradeTreeProducer::L1MuonUpgradeTreeProducer(const edm::ParameterSet& iC
   consumes<l1t::RegionalMuonCandBxCollection>(emtfTag_);
   consumes<l1t::CaloTowerBxCollection>(caloTag_);
   mayConsume<CaloTowerCollection>(caloRecoTag_);
-  consumes<l1t::GMTInputCaloSumBxCollection>(calo2x2Tag_);
+  consumes<l1t::MuonCaloSumBxCollection>(calo2x2Tag_);
   consumes<l1t::MuonBxCollection>(ugmtTag_);
 
   ugmtData = ugmt.getData();
@@ -106,7 +106,7 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<l1t::RegionalMuonCandBxCollection> emtfMuons;
   edm::Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;
   edm::Handle<l1t::MuonBxCollection> ugmtMuons;
-  edm::Handle<l1t::GMTInputCaloSumBxCollection> calo2x2Twrs;
+  edm::Handle<l1t::MuonCaloSumBxCollection> calo2x2Twrs;
   edm::Handle<l1t::CaloTowerBxCollection> caloTwrs;
   edm::Handle<CaloTowerCollection> caloRecoTwrs;
 
