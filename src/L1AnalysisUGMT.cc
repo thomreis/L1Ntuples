@@ -1,5 +1,6 @@
 #include "../interface/L1AnalysisUGMT.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 
