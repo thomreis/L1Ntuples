@@ -56,6 +56,14 @@ private:
   edm::InputTag calo2x2Tag_;
   edm::InputTag caloTag_;
   edm::InputTag caloRecoTag_;
+
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> bmtfToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> omtfToken_;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> emtfToken_;
+  edm::EDGetTokenT<l1t::MuonBxCollection> ugmtToken_;
+  edm::EDGetTokenT<CaloTowerCollection> caloRecoToken_;
+  edm::EDGetTokenT<l1t::CaloTowerBxCollection> caloToken_;
+  edm::EDGetTokenT<l1t::MuonCaloSumBxCollection> calo2x2Token_;
 };
 
 
@@ -69,13 +77,13 @@ L1MuonUpgradeTreeProducer::L1MuonUpgradeTreeProducer(const edm::ParameterSet& iC
   caloTag_(iConfig.getParameter<edm::InputTag>("caloTag")),
   caloRecoTag_(iConfig.getParameter<edm::InputTag>("caloRecoTag"))
 {
-  consumes<l1t::RegionalMuonCandBxCollection>(bmtfTag_);
-  consumes<l1t::RegionalMuonCandBxCollection>(omtfTag_);
-  consumes<l1t::RegionalMuonCandBxCollection>(emtfTag_);
-  consumes<l1t::CaloTowerBxCollection>(caloTag_);
-  mayConsume<CaloTowerCollection>(caloRecoTag_);
-  consumes<l1t::MuonCaloSumBxCollection>(calo2x2Tag_);
-  consumes<l1t::MuonBxCollection>(ugmtTag_);
+  bmtfToken_ = consumes<l1t::RegionalMuonCandBxCollection>(bmtfTag_);
+  omtfToken_ = consumes<l1t::RegionalMuonCandBxCollection>(omtfTag_);
+  emtfToken_ = consumes<l1t::RegionalMuonCandBxCollection>(emtfTag_);
+  caloToken_ = consumes<l1t::CaloTowerBxCollection>(caloTag_);
+  caloRecoToken_ = mayConsume<CaloTowerCollection>(caloRecoTag_);
+  calo2x2Token_ = consumes<l1t::MuonCaloSumBxCollection>(calo2x2Tag_);
+  ugmtToken_ = consumes<l1t::MuonBxCollection>(ugmtTag_);
 
   ugmtData = ugmt.getData();
   twrData = new L1Analysis::L1AnalysisMuTwrDataFormat();
@@ -111,12 +119,12 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<CaloTowerCollection> caloRecoTwrs;
 
 
-  iEvent.getByLabel(bmtfTag_, bmtfMuons);
-  iEvent.getByLabel(emtfTag_, emtfMuons);
-  iEvent.getByLabel(omtfTag_, omtfMuons);
-  iEvent.getByLabel(ugmtTag_, ugmtMuons);
-  iEvent.getByLabel(calo2x2Tag_, calo2x2Twrs);
-  iEvent.getByLabel(caloTag_, caloTwrs);
+  iEvent.getByToken(bmtfToken_, bmtfMuons);
+  iEvent.getByToken(emtfToken_, emtfMuons);
+  iEvent.getByToken(omtfToken_, omtfMuons);
+  iEvent.getByToken(ugmtToken_, ugmtMuons);
+  iEvent.getByToken(calo2x2Token_, calo2x2Twrs);
+  iEvent.getByToken(caloToken_, caloTwrs);
   // iEvent.getByLabel(m_trigTowerTag, trigTowers);
   if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
     ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, true);
@@ -146,7 +154,7 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
   if (caloRecoTag_.label() != "none") {
-    iEvent.getByLabel(caloRecoTag_, caloRecoTwrs);
+    iEvent.getByToken(caloRecoToken_, caloRecoTwrs);
     for(auto it = caloRecoTwrs->begin(); it != caloRecoTwrs->end(); ++it) {
       twrRecoData->packedPhi.push_back(it->iphi());
       twrRecoData->packedEta.push_back(it->ieta());
