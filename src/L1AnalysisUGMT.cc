@@ -1,6 +1,6 @@
 #include "../interface/L1AnalysisUGMT.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-#include "DataFormats/L1TMuon/interface/GMTInternalMuon.h"
+#include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 
@@ -41,8 +41,9 @@ L1AnalysisUGMT::findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, i
 {
   for (unsigned i = 0; i < coll.size(bx); ++i) {
     auto tf = coll.at(bx, i);
+    int phi = l1t::MicroGMTConfiguration::calcGlobalPhi(tf.hwPhi(), tf.trackFinderType(), tf.processor());
     if (tf.hwEta() == mu.hwEta() &&
-        tf.hwPhi() == mu.hwPhi() &&
+        phi == mu.hwPhi() &&
         tf.hwPt() == mu.hwPt() &&
         tf.hwQual() == mu.hwQual()) {
       return i;

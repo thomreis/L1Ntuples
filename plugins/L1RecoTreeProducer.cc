@@ -135,8 +135,8 @@ private:
 
 
 L1RecoTreeProducer::L1RecoTreeProducer(const edm::ParameterSet& iConfig):
-  jetTag_(iConfig.getUntrackedParameter("jetTag",edm::InputTag("ak5CaloJets"))),
-  jetIdTag_(iConfig.getUntrackedParameter("jetIdTag",edm::InputTag("ak5JetID"))),
+  jetTag_(iConfig.getUntrackedParameter("jetTag",edm::InputTag("ak4CaloJets"))),
+  jetIdTag_(iConfig.getUntrackedParameter("jetIdTag",edm::InputTag("ak4JetID"))),
   metTag_(iConfig.getUntrackedParameter("metTag",edm::InputTag("met"))),
   ebRecHitsTag_(iConfig.getUntrackedParameter("ebRecHitsTag",edm::InputTag("ecalRecHit:EcalRecHitsEB"))),
   eeRecHitsTag_(iConfig.getUntrackedParameter("eeRecHitsTag",edm::InputTag("ecalRecHit:EcalRecHitsEE"))),
@@ -146,7 +146,7 @@ L1RecoTreeProducer::L1RecoTreeProducer(const edm::ParameterSet& iConfig):
   basicClustersEndcapTag_(iConfig.getUntrackedParameter("basicClustersEndcapTag",edm::InputTag("multi5x5BasicClusters:multi5x5EndcapBasicClusters"))),
   verticesTag_(iConfig.getUntrackedParameter("verticesTag",edm::InputTag("offlinePrimaryVertices"))),
   tracksTag_(iConfig.getUntrackedParameter("tracksTag",edm::InputTag("generalTracks"))),
-  jetCorrectorServiceName_(iConfig.getUntrackedParameter<std::string>("jetCorrectorServiceName","ak5CaloL2L3Residual")),
+  jetCorrectorServiceName_(iConfig.getUntrackedParameter<std::string>("jetCorrectorServiceName","ak4CaloL2L3Residual")),
   jetsMissing_(false)
 {
 

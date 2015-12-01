@@ -1,8 +1,13 @@
+<export>
+  <lib name="1"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="root"/>
+</export>
+
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="root"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/L1Trigger"/>
@@ -22,7 +27,6 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackReco"/>
-<use name="DataFormats/L1TMuon"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/DTGeometryBuilder"/>
