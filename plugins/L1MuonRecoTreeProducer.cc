@@ -232,6 +232,12 @@ L1MuonRecoTreeProducer::L1MuonRecoTreeProducer(const edm::ParameterSet& iConfig)
   isoTriggerNames_     = iConfig.getParameter<std::vector<std::string> > ("isoTriggerNames");
   triggerMaxDeltaR_    = iConfig.getParameter<double> ("triggerMaxDeltaR");
 
+  consumes<reco::MuonCollection>(muonTag_);
+  consumes<RPCRecHitCollection>(rpcHitTag_);
+  consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
+  consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", triggerProcessLabel_));
+  consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
 }
 
 
