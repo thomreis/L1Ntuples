@@ -1,4 +1,5 @@
 
+#include <vector>
 #include <memory>
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -24,6 +25,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
 #include "TH2F.h"
+#include "TH1F.h"
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
@@ -159,11 +161,11 @@ TfHistos::TfHistos(edm::Service<TFileService> &fs, const std::string& label, con
   h2HwSignValid_ = fs->make<TH2I>(("h2HwSignValid"+label).c_str(), (titlePrefix+" hwSignValid per BX;Sign valid;BX").c_str(), 2, 0, 2, 15, -7, 8);
   h2HwQual_ = fs->make<TH2I>(("h2HwQual"+label).c_str(), (titlePrefix+" hwQual per BX;Quality;BX").c_str(), 16, 0, 16, 15, -7, 8);
   h2TfType_ = fs->make<TH2I>(("h2TfType"+label).c_str(), (titlePrefix+" tfType per BX;TF type;BX").c_str(), 5, 0, 5, 15, -7, 8);
-  h2Pt_ = fs->make<TH2F>(("h2Pt"+label).c_str(), (titlePrefix+" Pt per BX;GeV;BX").c_str(), 150, 0, 150, 15, -7, 8);
-  h2Eta_ = fs->make<TH2F>(("h2Eta"+label).c_str(), (titlePrefix+" Eta per BX;#eta;BX").c_str(), 100, -2.5, 2.5, 15, -7, 8);
-  h2GlobalPhi_ = fs->make<TH2F>(("h2GlobalPhi"+label).c_str(), (titlePrefix+" GlobalPhi per BX;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
-  h2GlobalPhiNeg_ = fs->make<TH2F>(("h2GlobalPhiNeg"+label).c_str(), (titlePrefix+" GlobalPhi per BX negative side;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
-  h2GlobalPhiPos_ = fs->make<TH2F>(("h2GlobalPhiPos"+label).c_str(), (titlePrefix+" GlobalPhi per BX positive side;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
+  h2Pt_ = fs->make<TH2F>(("h2Pt"+label).c_str(), (titlePrefix+" p_{T} per BX;GeV;BX").c_str(), 150, 0, 150, 15, -7, 8);
+  h2Eta_ = fs->make<TH2F>(("h2Eta"+label).c_str(), (titlePrefix+" #eta per BX;#eta;BX").c_str(), 100, -2.5, 2.5, 15, -7, 8);
+  h2GlobalPhi_ = fs->make<TH2F>(("h2GlobalPhi"+label).c_str(), (titlePrefix+" global #phi per BX;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
+  h2GlobalPhiNeg_ = fs->make<TH2F>(("h2GlobalPhiNeg"+label).c_str(), (titlePrefix+" global #phi per BX negative side;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
+  h2GlobalPhiPos_ = fs->make<TH2F>(("h2GlobalPhiPos"+label).c_str(), (titlePrefix+" global #phi per BX positive side;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
 
   hHwPt_ = fs->make<TH1I>(("hHwPt"+label).c_str(), (titlePrefix+" hwPt").c_str(), 300, 0, 300);
   hHwEta_ = fs->make<TH1I>(("hHwEta"+label).c_str(), (titlePrefix+" hwEta").c_str(), 462, -230, 232);
@@ -177,11 +179,11 @@ TfHistos::TfHistos(edm::Service<TFileService> &fs, const std::string& label, con
   hTfType_ = fs->make<TH1I>(("hTfType"+label).c_str(), (titlePrefix+" hTfType").c_str(), 5, 0, 5);
   hMuPerBxNeg_ = fs->make<TH1I>(("hMuPerBxNeg"+label).c_str(), (titlePrefix+" muons per BX negative side;BX").c_str(), 15, -7, 8);
   hMuPerBxPos_ = fs->make<TH1I>(("hMuPerBxPos"+label).c_str(), (titlePrefix+" muons per BX positive side;BX").c_str(), 15, -7, 8);
-  hPt_ = fs->make<TH1F>(("hPt"+label).c_str(), (titlePrefix+" Pt;GeV").c_str(), 150, 0, 150);
-  hEta_ = fs->make<TH1F>(("hEta"+label).c_str(), (titlePrefix+" Eta;#eta").c_str(), 100, -2.5, 2.5);
-  hGlobalPhi_ = fs->make<TH1F>(("hGlobalPhi"+label).c_str(), (titlePrefix+" GlobalPhi;#phi").c_str(), 128, 0., 6.4);
-  hGlobalPhiNeg_ = fs->make<TH1F>(("hGlobalPhiNeg"+label).c_str(), (titlePrefix+" GlobalPhi negative side;#phi").c_str(), 128, 0., 6.4);
-  hGlobalPhiPos_ = fs->make<TH1F>(("hGlobalPhiPos"+label).c_str(), (titlePrefix+" GlobalPhi positive side;#phi").c_str(), 128, 0., 6.4);
+  hPt_ = fs->make<TH1F>(("hPt"+label).c_str(), (titlePrefix+" p_{T};GeV").c_str(), 150, 0, 150);
+  hEta_ = fs->make<TH1F>(("hEta"+label).c_str(), (titlePrefix+" #eta;#eta").c_str(), 100, -2.5, 2.5);
+  hGlobalPhi_ = fs->make<TH1F>(("hGlobalPhi"+label).c_str(), (titlePrefix+" global #phi;#phi").c_str(), 128, 0., 6.4);
+  hGlobalPhiNeg_ = fs->make<TH1F>(("hGlobalPhiNeg"+label).c_str(), (titlePrefix+" global #phi negative side;#phi").c_str(), 128, 0., 6.4);
+  hGlobalPhiPos_ = fs->make<TH1F>(("hGlobalPhiPos"+label).c_str(), (titlePrefix+" global #phi positive side;#phi").c_str(), 128, 0., 6.4);
 
   h2EtaPhi_ = fs->make<TH2F>(("h2EtaPhi"+label).c_str(), (titlePrefix+" EtaPhi;#eta;#phi").c_str(), 100, -2.5, 2.5, 128, 0., 6.4);
 }
@@ -313,9 +315,9 @@ UGmtHistos::UGmtHistos(edm::Service<TFileService> &fs, const std::string& label,
   h2HwCharge_ = fs->make<TH2I>(("h2HwCharge"+label).c_str(), (titlePrefix+" hwCharge per BX;charge;BX").c_str(), 3, -1, 2, 15, -7, 8);
   h2HwChargeValid_ = fs->make<TH2I>(("h2HwChargeValid"+label).c_str(), (titlePrefix+" hwChargeValid per BX;charge valid;BX").c_str(), 2, 0, 2, 15, -7, 8);
   h2HwQual_ = fs->make<TH2I>(("h2HwQual"+label).c_str(), (titlePrefix+" hwQual per BX;Quality;BX").c_str(), 16, 0, 16, 15, -7, 8);
-  h2Pt_ = fs->make<TH2F>(("h2Pt"+label).c_str(), (titlePrefix+" Pt per BX;GeV;BX").c_str(), 150, 0, 150, 15, -7, 8);
-  h2Eta_ = fs->make<TH2F>(("h2Eta"+label).c_str(), (titlePrefix+" Eta per BX;#eta;BX").c_str(), 100, -2.5, 2.5, 15, -7, 8);
-  h2Phi_ = fs->make<TH2F>(("h2Phi"+label).c_str(), (titlePrefix+" Phi per BX;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
+  h2Pt_ = fs->make<TH2F>(("h2Pt"+label).c_str(), (titlePrefix+" p_{T} per BX;GeV;BX").c_str(), 150, 0, 150, 15, -7, 8);
+  h2Eta_ = fs->make<TH2F>(("h2Eta"+label).c_str(), (titlePrefix+" #eta per BX;#eta;BX").c_str(), 100, -2.5, 2.5, 15, -7, 8);
+  h2Phi_ = fs->make<TH2F>(("h2Phi"+label).c_str(), (titlePrefix+" #phi per BX;#phi;BX").c_str(), 128, 0., 6.4, 15, -7, 8);
 
   hHwPt_ = fs->make<TH1I>(("hHwPt"+label).c_str(), (titlePrefix+" hwPt").c_str(), 300, 0, 300);
   hHwEta_ = fs->make<TH1I>(("hHwEta"+label).c_str(), (titlePrefix+" hwEta").c_str(), 462, -230, 232);
@@ -324,9 +326,9 @@ UGmtHistos::UGmtHistos(edm::Service<TFileService> &fs, const std::string& label,
   hHwChargeValid_ = fs->make<TH1I>(("hHwChargeValid"+label).c_str(), (titlePrefix+" hwChargeValid").c_str(), 2, 0, 2);
   hHwQual_ = fs->make<TH1I>(("hHwQual"+label).c_str(), (titlePrefix+" hwQual").c_str(), 16, 0, 16);
   hHwIso_ = fs->make<TH1I>(("hHwIso"+label).c_str(), (titlePrefix+" hwIso").c_str(), 4, 0, 4);
-  hPt_ = fs->make<TH1F>(("hPt"+label).c_str(), (titlePrefix+" Pt;GeV").c_str(), 150, 0, 150);
-  hEta_ = fs->make<TH1F>(("hEta"+label).c_str(), (titlePrefix+" Eta;#eta").c_str(), 100, -2.5, 2.5);
-  hPhi_ = fs->make<TH1F>(("hPhi"+label).c_str(), (titlePrefix+" Phi;#phi").c_str(), 128, 0., 6.4);
+  hPt_ = fs->make<TH1F>(("hPt"+label).c_str(), (titlePrefix+" p_{T};GeV").c_str(), 150, 0, 150);
+  hEta_ = fs->make<TH1F>(("hEta"+label).c_str(), (titlePrefix+" #eta;#eta").c_str(), 100, -2.5, 2.5);
+  hPhi_ = fs->make<TH1F>(("hPhi"+label).c_str(), (titlePrefix+" #phi;#phi").c_str(), 128, 0., 6.4);
 
   h2EtaPhi_ = fs->make<TH2F>(("h2EtaPhi"+label).c_str(), (titlePrefix+" EtaPhi;#eta;#phi").c_str(), 100, -2.5, 2.5, 128, 0., 6.4);
 }
@@ -370,12 +372,16 @@ protected:
   float phiScale_;
 
 private:
+  enum trackFinder {bmtf, omtf, emtf};
+
   virtual void beginJob(void) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
   void analyzeRegionalMuonCand(const l1t::RegionalMuonCandBxCollection& muons, TfHistos& histos, const std::string& label);
   void analyzeMuon(const l1t::MuonBxCollection& muons, UGmtHistos& histos, const std::string& label);
+  void compareTFtoGMT(const edm::Event& iEvent, const edm::InputTag& tfTag, const std::vector<int>& tfBXShifts, trackFinder);
+  void compareUGMTtoGMT(const edm::Event& iEvent, const edm::InputTag& ugmtTag);
 
   int bxId_;
 
@@ -425,10 +431,77 @@ private:
   TH1I *hMuQualDiff_;
   TH1I *hMuIsoDiff_;
 
-  TH1F *h2TfVsGmtPhi_;
+  TH2F *h2MatchDRBmtfVsGmtPt_;
+  TH2F *h2MatchDRBmtfVsGmtEta_;
+  TH2F *h2MatchDRBmtfVsGmtPhi_;
+  TH2F *h2MatchDROmtfVsGmtPt_;
+  TH2F *h2MatchDROmtfVsGmtEta_;
+  TH2F *h2MatchDROmtfVsGmtPhi_;
+  TH2F *h2MatchDREmtfVsGmtPt_;
+  TH2F *h2MatchDREmtfVsGmtEta_;
+  TH2F *h2MatchDREmtfVsGmtPhi_;
+  TH2F *h2MatchEtaBmtfVsGmtPt_;
+  TH2F *h2MatchEtaBmtfVsGmtEta_;
+  TH2F *h2MatchEtaBmtfVsGmtPhi_;
+  TH2F *h2MatchEtaOmtfVsGmtPt_;
+  TH2F *h2MatchEtaOmtfVsGmtEta_;
+  TH2F *h2MatchEtaOmtfVsGmtPhi_;
+  TH2F *h2MatchEtaEmtfVsGmtPt_;
+  TH2F *h2MatchEtaEmtfVsGmtEta_;
+  TH2F *h2MatchEtaEmtfVsGmtPhi_;
+  TH2F *h2MatchPhiBmtfVsGmtPt_;
+  TH2F *h2MatchPhiBmtfVsGmtEta_;
+  TH2F *h2MatchPhiBmtfVsGmtPhi_;
+  TH2F *h2MatchPhiOmtfVsGmtPt_;
+  TH2F *h2MatchPhiOmtfVsGmtEta_;
+  TH2F *h2MatchPhiOmtfVsGmtPhi_;
+  TH2F *h2MatchPhiEmtfVsGmtPt_;
+  TH2F *h2MatchPhiEmtfVsGmtEta_;
+  TH2F *h2MatchPhiEmtfVsGmtPhi_;
+  TH2F *h2UGmtVsGmtPt_;
+  TH2F *h2UGmtVsGmtEta_;
+  TH2F *h2UGmtVsGmtPhi_;
 
   TH1I *hGmtBxId_;
   TH2F *h2GmtEtaPhi_;
+
+  TTree *tree_;
+  std::vector<float> bestMatchDRBmtfGmtDR_;
+  std::vector<float> bestMatchDROmtfGmtDR_;
+  std::vector<float> bestMatchDREmtfGmtDR_;
+  std::vector<int> bestMatchDRTfGmtLink_;
+  std::vector<float> diffMatchDRBmtfGmtPt_;
+  std::vector<float> diffMatchDRBmtfGmtEta_;
+  std::vector<float> diffMatchDRBmtfGmtPhi_;
+  std::vector<float> diffMatchDROmtfGmtPt_;
+  std::vector<float> diffMatchDROmtfGmtEta_;
+  std::vector<float> diffMatchDROmtfGmtPhi_;
+  std::vector<float> diffMatchDREmtfGmtPt_;
+  std::vector<float> diffMatchDREmtfGmtEta_;
+  std::vector<float> diffMatchDREmtfGmtPhi_;
+  std::vector<int> bestMatchEtaTfGmtLink_;
+  std::vector<float> diffMatchEtaBmtfGmtPt_;
+  std::vector<float> diffMatchEtaBmtfGmtEta_;
+  std::vector<float> diffMatchEtaBmtfGmtPhi_;
+  std::vector<float> diffMatchEtaOmtfGmtPt_;
+  std::vector<float> diffMatchEtaOmtfGmtEta_;
+  std::vector<float> diffMatchEtaOmtfGmtPhi_;
+  std::vector<float> diffMatchEtaEmtfGmtPt_;
+  std::vector<float> diffMatchEtaEmtfGmtEta_;
+  std::vector<float> diffMatchEtaEmtfGmtPhi_;
+  std::vector<int> bestMatchPhiTfGmtLink_;
+  std::vector<float> diffMatchPhiBmtfGmtPt_;
+  std::vector<float> diffMatchPhiBmtfGmtEta_;
+  std::vector<float> diffMatchPhiBmtfGmtPhi_;
+  std::vector<float> diffMatchPhiOmtfGmtPt_;
+  std::vector<float> diffMatchPhiOmtfGmtEta_;
+  std::vector<float> diffMatchPhiOmtfGmtPhi_;
+  std::vector<float> diffMatchPhiEmtfGmtPt_;
+  std::vector<float> diffMatchPhiEmtfGmtEta_;
+  std::vector<float> diffMatchPhiEmtfGmtPhi_;
+  std::vector<float> diffUGmtGmtPt_;
+  std::vector<float> diffUGmtGmtEta_;
+  std::vector<float> diffUGmtGmtPhi_;
 };
 
 
@@ -492,7 +565,7 @@ L1MuonAnalyzer::L1MuonAnalyzer(const edm::ParameterSet& iConfig) :
   hBxId_ = fs_->make<TH1I>("hBxId", "BX id", 370, 0, 3700);
 
   hMuSizeDiff_ = fs_->make<TH1I>("hMuSizeDiff", "Emulator muon size - unpacker muon size for BX 0", 17, -8, 9);
-  hMuPtDiff_ = fs_->make<TH1I>("hMuPtDiff", "Emulator muon pT - unpacker muon pt for BX 0", 521, -260, 261);
+  hMuPtDiff_ = fs_->make<TH1I>("hMuPtDiff", "Emulator muon p_{T} - unpacker muon p_{T} for BX 0", 521, -260, 261);
   hMuEtaDiff_ = fs_->make<TH1I>("hMuEtaDiff", "Emulator muon #eta - unpacker muon #eta for BX 0", 461, -230, 231);
   hMuPhiDiff_ = fs_->make<TH1I>("hMuPhiDiff", "Emulator muon #phi - unpacker muon #phi for BX 0", 581, -290, 291);
   hMuChargeDiff_ = fs_->make<TH1I>("hMuChargeDiff", "Emulator muon charge - unpacker muon charge for BX 0", 5, -2, 3);
@@ -500,8 +573,77 @@ L1MuonAnalyzer::L1MuonAnalyzer(const edm::ParameterSet& iConfig) :
   hMuQualDiff_ = fs_->make<TH1I>("hMuQualDiff", "Emulator muon qual - unpacker muon qual for BX 0", 31, -15, 16);
   hMuIsoDiff_ = fs_->make<TH1I>("hMuIsoDiff", "Emulator muon iso - unpacker muon iso for BX 0", 7, -3, 4);
 
+  h2MatchDRBmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchDRBmtfVsGmtPt", "GMT vs. BMTF p_{T}, best #DeltaR match;GMT p_{T};BMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchDRBmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchDRBmtfVsGmtEta", "GMT vs. BMTF #eta, best #DeltaR match;GMT #eta;BMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchDRBmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchDRBmtfVsGmtPhi", "GMT vs. BMTF #phi, best #DeltaR match;GMT #phi;BMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchDROmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchDROmtfVsGmtPt", "GMT vs. OMTF p_{T}, best #DeltaR match;GMT p_{T};OMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchDROmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchDROmtfVsGmtEta", "GMT vs. OMTF #eta, best #DeltaR match;GMT #eta;OMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchDROmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchDROmtfVsGmtPhi", "GMT vs. OMTF #phi, best #DeltaR match;GMT #phi;OMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchDREmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchDREmtfVsGmtPt", "GMT vs. EMTF p_{T}, best #DeltaR match;GMT p_{T};EMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchDREmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchDREmtfVsGmtEta", "GMT vs. EMTF #eta, best #DeltaR match;GMT #eta;EMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchDREmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchDREmtfVsGmtPhi", "GMT vs. EMTF #phi, best #DeltaR match;GMT #phi;EMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchEtaBmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchEtaBmtfVsGmtPt", "GMT vs. BMTF p_{T}, best #eta match;GMT p_{T};BMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchEtaBmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchEtaBmtfVsGmtEta", "GMT vs. BMTF #eta, best #eta match;GMT #eta;BMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchEtaBmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchEtaBmtfVsGmtPhi", "GMT vs. BMTF #phi, best #eta match;GMT #phi;BMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchEtaOmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchEtaOmtfVsGmtPt", "GMT vs. OMTF p_{T}, best #eta match;GMT p_{T};OMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchEtaOmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchEtaOmtfVsGmtEta", "GMT vs. OMTF #eta, best #eta match;GMT #eta;OMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchEtaOmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchEtaOmtfVsGmtPhi", "GMT vs. OMTF #phi, best #eta match;GMT #phi;OMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchEtaEmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchEtaEmtfVsGmtPt", "GMT vs. EMTF p_{T}, best #eta match;GMT p_{T};EMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchEtaEmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchEtaEmtfVsGmtEta", "GMT vs. EMTF #eta, best #eta match;GMT #eta;EMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchEtaEmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchEtaEmtfVsGmtPhi", "GMT vs. EMTF #phi, best #eta match;GMT #phi;EMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchPhiBmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchPhiBmtfVsGmtPt", "GMT vs. BMTF p_{T}, best #phi match;GMT p_{T};BMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchPhiBmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchPhiBmtfVsGmtEta", "GMT vs. BMTF #eta, best #phi match;GMT #eta;BMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchPhiBmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchPhiBmtfVsGmtPhi", "GMT vs. BMTF #phi, best #phi match;GMT #phi;BMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchPhiOmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchPhiOmtfVsGmtPt", "GMT vs. OMTF p_{T}, best #phi match;GMT p_{T};OMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchPhiOmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchPhiOmtfVsGmtEta", "GMT vs. OMTF #eta, best #phi match;GMT #eta;OMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchPhiOmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchPhiOmtfVsGmtPhi", "GMT vs. OMTF #phi, best #phi match;GMT #phi;OMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2MatchPhiEmtfVsGmtPt_ = fs_->make<TH2F>("h2MatchPhiEmtfVsGmtPt", "GMT vs. EMTF p_{T}, best #phi match;GMT p_{T};EMTF p_{T}", 150, 0., 150, 150, 0., 150);
+  h2MatchPhiEmtfVsGmtEta_ = fs_->make<TH2F>("h2MatchPhiEmtfVsGmtEta", "GMT vs. EMTF #eta, best #phi match;GMT #eta;EMTF #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2MatchPhiEmtfVsGmtPhi_ = fs_->make<TH2F>("h2MatchPhiEmtfVsGmtPhi", "GMT vs. EMTF #phi, best #phi match;GMT #phi;EMTF #phi", 128, 0., 6.4, 128, 0., 6.4);
+  h2UGmtVsGmtPt_ = fs_->make<TH2F>("h2UGmtVsGmtPt", "GMT vs. uGMT p_{T};GMT p_{T};uGMT p_{T}", 150, 0., 150, 150, 0., 150);
+  h2UGmtVsGmtEta_ = fs_->make<TH2F>("h2UGmtVsGmtEta", "GMT vs. uGMT #eta;GMT #eta;uGMT #eta", 100, -2.5, 2.5, 100, -2.5, 2.5);
+  h2UGmtVsGmtPhi_ = fs_->make<TH2F>("h2UGmtVsGmtPhi", "GMT vs. uGMT phi;GMT #phi;uGMT #phi", 128, 0., 6.4, 128, 0., 6.4);
+
   hGmtBxId_ = fs_->make<TH1I>("hGmtBxId", "GMT event BX", 370, 0, 3700);
   h2GmtEtaPhi_ = fs_->make<TH2F>("h2GmtEtaPhi", "GMT eta phi map;#eta;#phi", 100, -2.5, 2.5, 128, 0., 6.4);
+
+  tree_ = fs_->make<TTree>("L1MuonAnalyzerTree", "L1MuonAnalyzerTree");
+  tree_->Branch("bestMatchDRBmtfGmtDR", &bestMatchDRBmtfGmtDR_, 32000, 1);
+  tree_->Branch("bestMatchDROmtfGmtDR", &bestMatchDROmtfGmtDR_, 32000, 1);
+  tree_->Branch("bestMatchDREmtfGmtDR", &bestMatchDREmtfGmtDR_, 32000, 1);
+  tree_->Branch("bestMatchDRTfGmtLink", &bestMatchDRTfGmtLink_, 32000, 1);
+  tree_->Branch("diffMatchDRBmtfGmtPt", &diffMatchDRBmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchDRBmtfGmtEta", &diffMatchDRBmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchDRBmtfGmtPhi", &diffMatchDRBmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffMatchDROmtfGmtPt", &diffMatchDROmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchDROmtfGmtEta", &diffMatchDROmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchDROmtfGmtPhi", &diffMatchDROmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffMatchDREmtfGmtPt", &diffMatchDREmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchDREmtfGmtEta", &diffMatchDREmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchDREmtfGmtPhi", &diffMatchDREmtfGmtPhi_, 32000, 1);
+  tree_->Branch("bestMatchEtaTfGmtLink", &bestMatchEtaTfGmtLink_, 32000, 1);
+  tree_->Branch("diffMatchEtaBmtfGmtPt", &diffMatchEtaBmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchEtaBmtfGmtEta", &diffMatchEtaBmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchEtaBmtfGmtPhi", &diffMatchEtaBmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffMatchEtaOmtfGmtPt", &diffMatchEtaOmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchEtaOmtfGmtEta", &diffMatchEtaOmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchEtaOmtfGmtPhi", &diffMatchEtaOmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffMatchEtaEmtfGmtPt", &diffMatchEtaEmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchEtaEmtfGmtEta", &diffMatchEtaEmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchEtaEmtfGmtPhi", &diffMatchEtaEmtfGmtPhi_, 32000, 1);
+  tree_->Branch("bestMatchPhiTfGmtLink", &bestMatchPhiTfGmtLink_, 32000, 1);
+  tree_->Branch("diffMatchPhiBmtfGmtPt", &diffMatchPhiBmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchPhiBmtfGmtEta", &diffMatchPhiBmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchPhiBmtfGmtPhi", &diffMatchPhiBmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffMatchPhiOmtfGmtPt", &diffMatchPhiOmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchPhiOmtfGmtEta", &diffMatchPhiOmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchPhiOmtfGmtPhi", &diffMatchPhiOmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffMatchPhiEmtfGmtPt", &diffMatchPhiEmtfGmtPt_, 32000, 1);
+  tree_->Branch("diffMatchPhiEmtfGmtEta", &diffMatchPhiEmtfGmtEta_, 32000, 1);
+  tree_->Branch("diffMatchPhiEmtfGmtPhi", &diffMatchPhiEmtfGmtPhi_, 32000, 1);
+  tree_->Branch("diffUGmtGmtPt", &diffUGmtGmtPt_, 32000, 1);
+  tree_->Branch("diffUGmtGmtEta", &diffUGmtGmtEta_, 32000, 1);
+  tree_->Branch("diffUGmtGmtPhi", &diffUGmtGmtPhi_, 32000, 1);
 }
 
 
@@ -513,6 +655,43 @@ L1MuonAnalyzer::~L1MuonAnalyzer()
 void
 L1MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  bestMatchDRBmtfGmtDR_.clear();
+  bestMatchDROmtfGmtDR_.clear();
+  bestMatchDREmtfGmtDR_.clear();
+  bestMatchDRTfGmtLink_.clear();
+  diffMatchDRBmtfGmtPt_.clear();
+  diffMatchDRBmtfGmtEta_.clear();
+  diffMatchDRBmtfGmtPhi_.clear();
+  diffMatchDROmtfGmtPt_.clear();
+  diffMatchDROmtfGmtEta_.clear();
+  diffMatchDROmtfGmtPhi_.clear();
+  diffMatchDREmtfGmtPt_.clear();
+  diffMatchDREmtfGmtEta_.clear();
+  diffMatchDREmtfGmtPhi_.clear();
+  bestMatchEtaTfGmtLink_.clear();
+  diffMatchEtaBmtfGmtPt_.clear();
+  diffMatchEtaBmtfGmtEta_.clear();
+  diffMatchEtaBmtfGmtPhi_.clear();
+  diffMatchEtaOmtfGmtPt_.clear();
+  diffMatchEtaOmtfGmtEta_.clear();
+  diffMatchEtaOmtfGmtPhi_.clear();
+  diffMatchEtaEmtfGmtPt_.clear();
+  diffMatchEtaEmtfGmtEta_.clear();
+  diffMatchEtaEmtfGmtPhi_.clear();
+  bestMatchPhiTfGmtLink_.clear();
+  diffMatchPhiBmtfGmtPt_.clear();
+  diffMatchPhiBmtfGmtEta_.clear();
+  diffMatchPhiBmtfGmtPhi_.clear();
+  diffMatchPhiOmtfGmtPt_.clear();
+  diffMatchPhiOmtfGmtEta_.clear();
+  diffMatchPhiOmtfGmtPhi_.clear();
+  diffMatchPhiEmtfGmtPt_.clear();
+  diffMatchPhiEmtfGmtEta_.clear();
+  diffMatchPhiEmtfGmtPhi_.clear();
+  diffUGmtGmtPt_.clear();
+  diffUGmtGmtEta_.clear();
+  diffUGmtGmtPhi_.clear();
+
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByLabel(fedRawDataTag_, rawdata);
   const FEDRawData& data = rawdata->FEDData(fedId_);
@@ -603,51 +782,21 @@ L1MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  //if (analyzeGmt_ && analyzeEmtf_) {
-  //  edm::Handle<L1MuGMTReadoutCollection> gmtReadoutColl;
-  //  edm::Handle<l1t::RegionalMuonCandBxCollection> tfMuons;
-  //  iEvent.getByLabel(gmtTag_, gmtReadoutColl);
-  //  iEvent.getByLabel(emtfTag_, tfMuons);
+  if (analyzeGmt_ && analyzeBmtf_) {
+    compareTFtoGMT(iEvent, bmtfTag_, bmtfBxShifts_, trackFinder(bmtf));
+  }
 
-  //  if (gmtReadoutColl.isValid() && tfMuons.isValid()) {
-  //    L1MuGMTReadoutCollection const* gmtrc = gmtReadoutColl.product();
+  if (analyzeGmt_ && analyzeOmtf_) {
+    compareTFtoGMT(iEvent, omtfTag_, omtfBxShifts_, trackFinder(omtf));
+  }
 
-  //    std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  //    std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
-  //    for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
+  if (analyzeGmt_ && analyzeEmtf_) {
+    compareTFtoGMT(iEvent, emtfTag_, emtfBxShifts_, trackFinder(emtf));
+  }
 
-  //      std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
-  //      std::vector<L1MuGMTExtendedCand> exc = igmtrr->getGMTCands();
-  //      unsigned int n = 0;
-  //      for(gmt_iter=exc.begin(); gmt_iter!=exc.end(); gmt_iter++) {
-  //        if (n < 12 && !(*gmt_iter).empty()) {
-  //          if ((*gmt_iter).bx() != 0) {
-  //            continue;
-  //          }
-  //          for (int bx = tfMuons->getFirstBX(); bx <= tfMuons->getLastBX(); ++bx) {
-  //            unsigned int ctr = 0;
-  //            for (auto mu = tfMuons->begin(bx); mu != tfMuons->end(bx) && ctr < tfMuons->size(bx); ++mu, ++ctr) {
-  //              int bxShiftIdx = mu->processor();
-  //              l1t::tftype tfType = mu->trackFinderType();
-  //              if (tfType == l1t::tftype::omtf_neg || tfType == l1t::tftype::emtf_neg) {
-  //                bxShiftIdx += 6;
-  //              }
-  //              if (bx != emtfBxShifts_[bxShiftIdx]) {
-  //                continue;
-  //              }
-  //              int globalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi(mu->hwPhi(), tfType, mu->processor());
-  //              h2TfVsGmtPhi_->Fill((*gmt_iter).phiValue(), globalPhi * phiScale_);
-  //            }
-  //          }
-  //          ++n;
-  //        }
-  //      }
-  //    }
-  //  } else {
-  //    edm::LogError("MissingProduct") << "Input collection not found" << std::endl;
-  //    return;
-  //  }
-  //}
+  if (analyzeGmt_ && analyzeUgmtUnpacker_) {
+    compareUGMTtoGMT(iEvent, ugmtUnpackerTag_);
+  }
 
   // emulator - unpacker comparisons
   if (analyzeUgmtEmulator_ && analyzeUgmtUnpacker_) {
@@ -658,19 +807,31 @@ L1MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (ugmtEmulatorMuons.isValid() && ugmtUnpackerMuons.isValid()) {
       hMuSizeDiff_->Fill(ugmtEmulatorMuons->size(0) - ugmtUnpackerMuons->size(0));
       auto muEmu = ugmtEmulatorMuons->begin(0);
-      auto muUnp = ugmtUnpackerMuons->begin(0);
-      unsigned int ctr = 0;
-      for (; muEmu != ugmtEmulatorMuons->end(0) && muUnp != ugmtUnpackerMuons->end(0) && ctr < ugmtEmulatorMuons->size(0) && ctr < ugmtUnpackerMuons->size(0); ++muEmu, ++muUnp, ++ctr) {
-        hMuPtDiff_->Fill(muEmu->hwPt() - muUnp->hwPt());
-        hMuEtaDiff_->Fill(muEmu->hwEta() - muUnp->hwEta());
-        hMuPhiDiff_->Fill(muEmu->hwPhi() - muUnp->hwPhi());
-        hMuChargeDiff_->Fill(muEmu->hwCharge() - muUnp->hwCharge());
-        hMuChargeValidDiff_->Fill(muEmu->hwChargeValid() - muUnp->hwChargeValid());
-        hMuQualDiff_->Fill(muEmu->hwQual() - muUnp->hwQual());
-        hMuIsoDiff_->Fill(muEmu->hwIso() - muUnp->hwIso());
+      unsigned int ctrEmu = 0;
+      for (; muEmu != ugmtEmulatorMuons->end(0) && ctrEmu < ugmtEmulatorMuons->size(0); ++muEmu, ++ctrEmu) {
+        auto muUnp = ugmtUnpackerMuons->begin(0);
+        auto muBestUnp = ugmtUnpackerMuons->begin(0);
+        unsigned int ctrUnp = 0;
+        int bestDPhi = 1e6;
+        for (; muUnp != ugmtUnpackerMuons->end(0) && ctrUnp < ugmtUnpackerMuons->size(0); ++muUnp, ++ctrUnp) {
+          if (abs(muEmu->hwPhi() - muUnp->hwPhi()) < bestDPhi) {
+            bestDPhi = abs(muEmu->hwPhi() - muUnp->hwPhi());
+            muBestUnp = muUnp;
+          }
+        }
+        hMuPtDiff_->Fill(muEmu->hwPt() - muBestUnp->hwPt());
+        hMuEtaDiff_->Fill(muEmu->hwEta() - muBestUnp->hwEta());
+        hMuPhiDiff_->Fill(muEmu->hwPhi() - muBestUnp->hwPhi());
+        hMuChargeDiff_->Fill(muEmu->hwCharge() - muBestUnp->hwCharge());
+        hMuChargeValidDiff_->Fill(muEmu->hwChargeValid() - muBestUnp->hwChargeValid());
+        hMuQualDiff_->Fill(muEmu->hwQual() - muBestUnp->hwQual());
+        hMuIsoDiff_->Fill(muEmu->hwIso() - muBestUnp->hwIso());
+        break;
       }
     }
   }
+
+  tree_->Fill();
 }
 
 
@@ -707,6 +868,8 @@ L1MuonAnalyzer::analyzeRegionalMuonCand(const l1t::RegionalMuonCandBxCollection&
                   << "   hwSignValid: " << mu->hwSignValid()
                   << "   hwQual: " << mu->hwQual()
                   << "   TF type: " << mu->trackFinderType()
+                  << "   Processor: " << mu->processor()
+                  << "   Link: " << mu->link()
                   << "   stored dataword: 0x" << hex << setw(16) << setfill('0') << mu->dataword() << dec
                   << "   dataword: 0x" << hex << setw(16) << setfill('0') << l1t::RegionalMuonRawDigiTranslator::generate64bitDataWord(*mu) << dec << std::endl;
       }
@@ -739,6 +902,224 @@ L1MuonAnalyzer::analyzeMuon(const l1t::MuonBxCollection& muons, UGmtHistos& hist
                   << "   dataword: 0x" << hex << setw(16) << setfill('0') << l1t::MuonRawDigiTranslator::generate64bitDataWord(*mu) << dec << std::endl;
       }
     }
+  }
+}
+
+void
+L1MuonAnalyzer::compareTFtoGMT(const edm::Event& iEvent, const edm::InputTag& tfTag, const std::vector<int>& tfBxShifts, trackFinder tf)
+{
+  edm::Handle<L1MuGMTReadoutCollection> gmtReadoutColl;
+  edm::Handle<l1t::RegionalMuonCandBxCollection> tfMuons;
+  iEvent.getByLabel(gmtTag_, gmtReadoutColl);
+  iEvent.getByLabel(tfTag, tfMuons);
+
+  if (gmtReadoutColl.isValid() && tfMuons.isValid()) {
+    L1MuGMTReadoutCollection const* gmtrc = gmtReadoutColl.product();
+
+    // get GMT BX 0 readout record
+    L1MuGMTReadoutRecord gmt_record = gmtrc->getRecord(0);
+    std::vector<L1MuGMTExtendedCand> exc = gmt_record.getGMTCands();
+    std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
+    unsigned int n = 0;
+    // look how many muons are in the GMT and stop if there is more than one
+    for(gmt_iter=exc.begin(); gmt_iter!=exc.end(); gmt_iter++) {
+      if (n < 12 && !(*gmt_iter).empty()) {
+        ++n;
+      }
+    }
+    if (n > 1) {
+      return;
+    }
+    n = 0;
+    for(gmt_iter=exc.begin(); gmt_iter!=exc.end(); gmt_iter++) {
+      if (n < 12 && !(*gmt_iter).empty()) {
+        ++n;
+        if ((*gmt_iter).bx() != 0) {
+          continue;
+        }
+        if (tf == bmtf && fabs((*gmt_iter).etaValue()) >= 0.83) {
+          continue;
+        } else if (tf == omtf && (fabs((*gmt_iter).etaValue()) < 0.83 || fabs((*gmt_iter).etaValue()) >= 1.24)) {
+          continue;
+        } else if (tf == emtf && fabs((*gmt_iter).etaValue()) < 1.24) {
+          continue;
+        }
+        float bestDR = 1.e10;
+        int bestDRMatchLink = -1;
+        float bestDRMatchPt = 1.e10;
+        float bestDRMatchEta = 1.e10;
+        float bestDRMatchPhi = 1.e10;
+        int bestEtaMatchLink = -1;
+        float bestEtaMatchPt = 1.e10;
+        float bestEtaMatchEta = 1.e10;
+        float bestEtaMatchPhi = 1.e10;
+        int bestPhiMatchLink = -1;
+        float bestPhiMatchPt = 1.e10;
+        float bestPhiMatchEta = 1.e10;
+        float bestPhiMatchPhi = 1.e10;
+        for (int bx = tfMuons->getFirstBX(); bx <= tfMuons->getLastBX(); ++bx) {
+          if (tfMuons->size(bx) > 1) {
+            continue;
+          }
+          unsigned int ctr = 0;
+          for (auto mu = tfMuons->begin(bx); mu != tfMuons->end(bx) && ctr < tfMuons->size(bx); ++mu, ++ctr) {
+            int bxShiftIdx = mu->processor();
+            l1t::tftype tfType = mu->trackFinderType();
+            if (tfType == l1t::tftype::omtf_neg || tfType == l1t::tftype::emtf_neg) {
+              bxShiftIdx += 6;
+            }
+            if (bx != tfBxShifts[bxShiftIdx]) {
+              continue;
+            }
+            int globalPhi = l1t::MicroGMTConfiguration::calcGlobalPhi(mu->hwPhi(), tfType, mu->processor());
+            float dR = sqrt((gmt_iter->etaValue() - mu->hwEta() * etaScale_)*(gmt_iter->etaValue() - mu->hwEta() * etaScale_) + (gmt_iter->phiValue() - globalPhi * phiScale_)*(gmt_iter->phiValue() - globalPhi * phiScale_));
+            if (dR < bestDR) {
+              bestDR = dR;
+              bestDRMatchLink = mu->link();
+              bestDRMatchPt = mu->hwPt() * ptScale_;
+              bestDRMatchEta = mu->hwEta() * etaScale_;
+              bestDRMatchPhi = globalPhi * phiScale_;
+            }
+            if (fabs(gmt_iter->etaValue() - mu->hwEta() * etaScale_) < fabs(gmt_iter->etaValue() - bestEtaMatchEta)) {
+              bestEtaMatchLink = mu->link();
+              bestEtaMatchPt = mu->hwPt() * ptScale_;
+              bestEtaMatchEta = mu->hwEta() * etaScale_;
+              bestEtaMatchPhi = globalPhi * phiScale_;
+            }
+            if (fabs(gmt_iter->phiValue() - globalPhi * phiScale_) < fabs(gmt_iter->phiValue() - bestPhiMatchPhi)) {
+              bestPhiMatchLink = mu->link();
+              bestPhiMatchPt = mu->hwPt() * ptScale_;
+              bestPhiMatchEta = mu->hwEta() * etaScale_;
+              bestPhiMatchPhi = globalPhi * phiScale_;
+            }
+          }
+        }
+        if (bestDR < 1.e10) {
+          bestMatchDRTfGmtLink_.push_back(bestDRMatchLink);
+          if (tf == bmtf) {
+            h2MatchDRBmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestDRMatchPt);
+            h2MatchDRBmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestDRMatchEta);
+            h2MatchDRBmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestDRMatchPhi);
+            bestMatchDRBmtfGmtDR_.push_back(bestDR);
+            diffMatchDRBmtfGmtPt_.push_back(bestDRMatchPt - (*gmt_iter).ptValue());
+            diffMatchDRBmtfGmtEta_.push_back(bestDRMatchEta - (*gmt_iter).etaValue());
+            diffMatchDRBmtfGmtPhi_.push_back(bestDRMatchPhi - (*gmt_iter).phiValue());
+          } else if (tf == omtf) {
+            h2MatchDROmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestDRMatchPt);
+            h2MatchDROmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestDRMatchEta);
+            h2MatchDROmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestDRMatchPhi);
+            bestMatchDROmtfGmtDR_.push_back(bestDR);
+            diffMatchDROmtfGmtPt_.push_back(bestDRMatchPt - (*gmt_iter).ptValue());
+            diffMatchDROmtfGmtEta_.push_back(bestDRMatchEta - (*gmt_iter).etaValue());
+            diffMatchDROmtfGmtPhi_.push_back(bestDRMatchPhi - (*gmt_iter).phiValue());
+          } else if (tf == emtf) {
+            h2MatchDREmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestDRMatchPt);
+            h2MatchDREmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestDRMatchEta);
+            h2MatchDREmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestDRMatchPhi);
+            bestMatchDREmtfGmtDR_.push_back(bestDR);
+            diffMatchDREmtfGmtPt_.push_back(bestDRMatchPt - (*gmt_iter).ptValue());
+            diffMatchDREmtfGmtEta_.push_back(bestDRMatchEta - (*gmt_iter).etaValue());
+            diffMatchDREmtfGmtPhi_.push_back(bestDRMatchPhi - (*gmt_iter).phiValue());
+          }
+        }
+        if (bestEtaMatchEta < 1.e10) {
+          bestMatchEtaTfGmtLink_.push_back(bestEtaMatchLink);
+          if (tf == bmtf) {
+            h2MatchEtaBmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestEtaMatchPt);
+            h2MatchEtaBmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestEtaMatchEta);
+            h2MatchEtaBmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestEtaMatchPhi);
+            diffMatchEtaBmtfGmtPt_.push_back(bestEtaMatchPt - (*gmt_iter).ptValue());
+            diffMatchEtaBmtfGmtEta_.push_back(bestEtaMatchEta - (*gmt_iter).etaValue());
+            diffMatchEtaBmtfGmtPhi_.push_back(bestEtaMatchPhi - (*gmt_iter).phiValue());
+          } else if (tf == omtf) {
+            h2MatchEtaOmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestEtaMatchPt);
+            h2MatchEtaOmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestEtaMatchEta);
+            h2MatchEtaOmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestEtaMatchPhi);
+            diffMatchEtaOmtfGmtPt_.push_back(bestEtaMatchPt - (*gmt_iter).ptValue());
+            diffMatchEtaOmtfGmtEta_.push_back(bestEtaMatchEta - (*gmt_iter).etaValue());
+            diffMatchEtaOmtfGmtPhi_.push_back(bestEtaMatchPhi - (*gmt_iter).phiValue());
+          } else if (tf == emtf) {
+            h2MatchEtaEmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestEtaMatchPt);
+            h2MatchEtaEmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestEtaMatchEta);
+            h2MatchEtaEmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestEtaMatchPhi);
+            diffMatchEtaEmtfGmtPt_.push_back(bestEtaMatchPt - (*gmt_iter).ptValue());
+            diffMatchEtaEmtfGmtEta_.push_back(bestEtaMatchEta - (*gmt_iter).etaValue());
+            diffMatchEtaEmtfGmtPhi_.push_back(bestEtaMatchPhi - (*gmt_iter).phiValue());
+          }
+        }
+        if (bestPhiMatchPhi < 1.e10) {
+          bestMatchPhiTfGmtLink_.push_back(bestPhiMatchLink);
+          if (tf == bmtf) {
+            h2MatchPhiBmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestPhiMatchPt);
+            h2MatchPhiBmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestPhiMatchEta);
+            h2MatchPhiBmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestPhiMatchPhi);
+            diffMatchPhiBmtfGmtPt_.push_back(bestPhiMatchPt - (*gmt_iter).ptValue());
+            diffMatchPhiBmtfGmtEta_.push_back(bestPhiMatchEta - (*gmt_iter).etaValue());
+            diffMatchPhiBmtfGmtPhi_.push_back(bestPhiMatchPhi - (*gmt_iter).phiValue());
+          } else if (tf == omtf) {
+            h2MatchPhiOmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestPhiMatchPt);
+            h2MatchPhiOmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestPhiMatchEta);
+            h2MatchPhiOmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestPhiMatchPhi);
+            diffMatchPhiOmtfGmtPt_.push_back(bestPhiMatchPt - (*gmt_iter).ptValue());
+            diffMatchPhiOmtfGmtEta_.push_back(bestPhiMatchEta - (*gmt_iter).etaValue());
+            diffMatchPhiOmtfGmtPhi_.push_back(bestPhiMatchPhi - (*gmt_iter).phiValue());
+          } else if (tf == emtf) {
+            h2MatchPhiEmtfVsGmtPt_->Fill((*gmt_iter).ptValue(), bestPhiMatchPt);
+            h2MatchPhiEmtfVsGmtEta_->Fill((*gmt_iter).etaValue(), bestPhiMatchEta);
+            h2MatchPhiEmtfVsGmtPhi_->Fill((*gmt_iter).phiValue(), bestPhiMatchPhi);
+            diffMatchPhiEmtfGmtPt_.push_back(bestPhiMatchPt - (*gmt_iter).ptValue());
+            diffMatchPhiEmtfGmtEta_.push_back(bestPhiMatchEta - (*gmt_iter).etaValue());
+            diffMatchPhiEmtfGmtPhi_.push_back(bestPhiMatchPhi - (*gmt_iter).phiValue());
+          }
+        }
+      }
+    }
+  } else {
+    edm::LogError("MissingProduct") << "GMT or TF input collection not found" << std::endl;
+    return;
+  }
+}
+
+void
+L1MuonAnalyzer::compareUGMTtoGMT(const edm::Event& iEvent, const edm::InputTag& ugmtTag)
+{
+  int bx = 0;
+
+  edm::Handle<L1MuGMTReadoutCollection> gmtReadoutColl;
+  edm::Handle<l1t::MuonBxCollection> ugmtMuons;
+  iEvent.getByLabel(gmtTag_, gmtReadoutColl);
+  iEvent.getByLabel(ugmtTag, ugmtMuons);
+
+  if (gmtReadoutColl.isValid() && ugmtMuons.isValid()) {
+    L1MuGMTReadoutCollection const* gmtrc = gmtReadoutColl.product();
+
+    // get GMT BX 0 readout record
+    L1MuGMTReadoutRecord gmt_record = gmtrc->getRecord(0);
+    std::vector<L1MuGMTExtendedCand> exc = gmt_record.getGMTCands();
+    std::vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
+    unsigned int n = 0;
+    for(gmt_iter=exc.begin(); gmt_iter!=exc.end(); gmt_iter++) {
+      if (n < 12 && !(*gmt_iter).empty()) {
+        ++n;
+        if ((*gmt_iter).bx() != 0) {
+          continue;
+        }
+        if (ugmtMuons->size(bx) == 1) {
+          unsigned int ctr = 0;
+          for (auto mu = ugmtMuons->begin(bx); mu != ugmtMuons->end(bx) && ctr < ugmtMuons->size(bx); ++mu, ++ctr) {
+            h2UGmtVsGmtPt_->Fill((*gmt_iter).ptValue(), mu->hwPt() * ptScale_);
+            h2UGmtVsGmtEta_->Fill((*gmt_iter).etaValue(), mu->hwEta() * etaScale_);
+            h2UGmtVsGmtPhi_->Fill((*gmt_iter).phiValue(), mu->hwPhi() * phiScale_);
+            diffUGmtGmtPt_.push_back(mu->hwPt() * ptScale_ - (*gmt_iter).ptValue());
+            diffUGmtGmtEta_.push_back(mu->hwEta() * etaScale_ - (*gmt_iter).etaValue());
+            diffUGmtGmtPhi_.push_back(mu->hwPhi() * phiScale_ - (*gmt_iter).phiValue());
+          }
+        }
+      }
+    }
+  } else {
+    edm::LogError("MissingProduct") << "Input collection not found" << std::endl;
+    return;
   }
 }
 
