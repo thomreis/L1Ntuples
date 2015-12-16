@@ -12,11 +12,14 @@ L1AnalysisUGMT::L1AnalysisUGMT() :
 
 void
 L1AnalysisUGMT::fillTrackFinder(const L1TRegionalMuonColl& coll, tftype mytype, int& ctr, int bx) {
+  if (bx < coll.getFirstBX() || bx > coll.getLastBX()) {
+    return;
+  }
   for (auto mu = coll.begin(bx); mu != coll.end(bx); ++mu) {
       ctr++;
       l1t::tftype regTf = mu->trackFinderType();
       int globPhi = l1t::MicroGMTConfiguration::calcGlobalPhi(mu->hwPhi(), regTf, mu->processor());
-      ugmt_.tfInfo[mytype].pt.push_back(mu->hwPt() * 0.5f);
+      ugmt_.tfInfo[mytype].pt.push_back((mu->hwPt() - 1) * 0.5f);
       ugmt_.tfInfo[mytype].eta.push_back(mu->hwEta() * 0.010875);
       ugmt_.tfInfo[mytype].phi.push_back(globPhi * 0.010908);
       ugmt_.tfInfo[mytype].qual.push_back(mu->hwQual());
@@ -39,6 +42,9 @@ L1AnalysisUGMT::fillTrackFinder(const L1TRegionalMuonColl& coll, tftype mytype, 
 int
 L1AnalysisUGMT::findMuon(const l1t::Muon& mu, const L1TRegionalMuonColl& coll, int bx)
 {
+  if (bx < coll.getFirstBX() || bx > coll.getLastBX()) {
+    return -1;
+  }
   for (unsigned i = 0; i < coll.size(bx); ++i) {
     auto tf = coll.at(bx, i);
     int phi = l1t::MicroGMTConfiguration::calcGlobalPhi(tf.hwPhi(), tf.trackFinderType(), tf.processor());

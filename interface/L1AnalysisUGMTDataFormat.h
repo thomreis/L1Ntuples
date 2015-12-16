@@ -86,6 +86,7 @@ namespace L1Analysis
       packedPt.clear();
       packedEta.clear();
       packedPhi.clear();
+      bx.clear();
 
       n = 0;
     }
@@ -100,6 +101,7 @@ namespace L1Analysis
     std::vector<int> packedPt;
     std::vector<int> packedEta;
     std::vector<int> packedPhi;
+    std::vector<int> bx;
   };
 
   struct TFLink {

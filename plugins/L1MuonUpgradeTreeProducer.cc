@@ -127,28 +127,34 @@ L1MuonUpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(caloToken_, caloTwrs);
   // iEvent.getByLabel(m_trigTowerTag, trigTowers);
   if (bmtfMuons.isValid() && emtfMuons.isValid() && omtfMuons.isValid() && ugmtMuons.isValid() && calo2x2Twrs.isValid()) {
-    ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, true);
-    for (auto it = calo2x2Twrs->begin(0); it != calo2x2Twrs->end(0); ++it) {
+    ugmt.Set(*ugmtMuons, *bmtfMuons, *omtfMuons, *emtfMuons, false);
 
-      twr2x2Data->packedPt.push_back(it->etBits());
-      twr2x2Data->packedEta.push_back(it->hwEta());
-      twr2x2Data->packedPhi.push_back(it->hwPhi());
+    for (int bx = calo2x2Twrs->getFirstBX(); bx <= calo2x2Twrs->getLastBX(); ++bx) {
+      for (auto it = calo2x2Twrs->begin(bx); it != calo2x2Twrs->end(bx); ++it) {
+        twr2x2Data->packedPt.push_back(it->etBits());
+        twr2x2Data->packedEta.push_back(it->hwEta());
+        twr2x2Data->packedPhi.push_back(it->hwPhi());
+        twr2x2Data->bx.push_back(bx);
 
-      // twrData->pt.push_back(it->etBits()*0.5);
-      // int ieta = (it->hwEta() - 27) * 2;
-      // float eta = ieta > 0 ? towerEtas[std::abs(ieta)+1] : -towerEtas[std::abs(ieta)+1];
-      // twrData->eta.push_back(eta);
-      // twrData->phi.push_back((it->hwPhi() * 2 + 1) * 0.087266);
-   }
-   twr2x2Data->n = calo2x2Twrs->size(0);
-   for (auto it = caloTwrs->begin(0); it != caloTwrs->end(0); ++it) {
-      const l1t::CaloTower& twr = *it;
-      twrData->packedPhi.push_back(twr.hwPhi());
-      twrData->packedEta.push_back(twr.hwEta());
-      twrData->packedPt.push_back(twr.hwPt());
+        // twrData->pt.push_back(it->etBits()*0.5);
+        // int ieta = (it->hwEta() - 27) * 2;
+        // float eta = ieta > 0 ? towerEtas[std::abs(ieta)+1] : -towerEtas[std::abs(ieta)+1];
+        // twrData->eta.push_back(eta);
+        // twrData->phi.push_back((it->hwPhi() * 2 + 1) * 0.087266);
+      }
+      twr2x2Data->n = calo2x2Twrs->size(bx);
     }
-    twrData->n = caloTwrs->size(0);
 
+    for (int bx = caloTwrs->getFirstBX(); bx <= caloTwrs->getLastBX(); ++bx) {
+      for (auto it = caloTwrs->begin(bx); it != caloTwrs->end(bx); ++it) {
+        const l1t::CaloTower& twr = *it;
+        twrData->packedPhi.push_back(twr.hwPhi());
+        twrData->packedEta.push_back(twr.hwEta());
+        twrData->packedPt.push_back(twr.hwPt());
+        twrData->bx.push_back(bx);
+      }
+      twrData->n = caloTwrs->size(bx);
+    }
   } else {
     edm::LogError("MissingProduct") << "L1Upgrade GMT inputs and / or output not found" << std::endl;
     return;
